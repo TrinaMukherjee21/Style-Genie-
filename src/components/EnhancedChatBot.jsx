@@ -12,7 +12,7 @@ const EnhancedChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth < 768);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showProductModal, setShowProductModal] = useState(false);
@@ -513,7 +513,7 @@ const EnhancedChatBot = () => {
       {isOpen && (
         <div className="fixed top-20 left-4 right-4 bottom-4 z-40 flex bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-700 backdrop-blur-sm">
           {/* Sidebar */}
-          <div className={`${sidebarCollapsed ? 'w-16' : 'w-80'} bg-gradient-to-b from-gray-800 to-gray-900 border-r border-gray-700 flex flex-col transition-all duration-300`}>
+          <div className={`${sidebarCollapsed ? 'hidden md:flex md:w-16' : 'absolute z-50 w-[85%] h-full md:relative md:w-80'} bg-gradient-to-b from-gray-800 to-gray-900 border-r border-gray-700 flex flex-col transition-all duration-300 shadow-2xl md:shadow-none`}>
             {/* Sidebar Header */}
             <div className="p-4 border-b border-gray-700 bg-gradient-to-r from-[#120D20] via-[#1A162D] to-[#120D20]">
               <div className="flex items-center justify-between">
@@ -617,17 +617,24 @@ const EnhancedChatBot = () => {
           </div>
 
           {/* Main Chat Area */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+            {!sidebarCollapsed && <div className="absolute inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarCollapsed(true)}></div>}
             {/* Chat Header */}
             <div className="p-4 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-brand-gold/20 border border-brand-gold/30 rounded-full flex items-center justify-center">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <button
+                    onClick={() => setSidebarCollapsed(false)}
+                    className="md:hidden text-white/80 hover:text-white transition-colors p-1"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </button>
+                  <div className="w-8 h-8 bg-brand-gold/20 border border-brand-gold/30 rounded-full flex items-center justify-center shrink-0">
                     <Crown className="w-4 h-4 text-white" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-white">StyleBot AI</h3>
-                    <p className="text-sm text-gray-300">Your Personal Fashion Expert</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-white truncate text-sm sm:text-base">StyleBot AI</h3>
+                    <p className="text-xs sm:text-sm text-gray-300 truncate">Fashion Expert</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -811,11 +818,11 @@ const EnhancedChatBot = () => {
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-brand-gold/20 bg-gradient-to-r from-[#120D20] to-[#1A162D]">
-              <div className="flex gap-3">
+            <div className="p-3 sm:p-4 border-t border-brand-gold/20 bg-gradient-to-r from-[#120D20] to-[#1A162D]">
+              <div className="flex gap-2 sm:gap-3 items-center">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-gray-700 text-gray-300 px-4 py-3 rounded-xl hover:bg-gray-600 transition-all duration-200 border border-gray-600 hover:border-purple-500"
+                  className="bg-gray-700 text-gray-300 p-2 sm:px-4 sm:py-3 rounded-xl hover:bg-gray-600 transition-all duration-200 border border-gray-600 hover:border-purple-500 shrink-0"
                   title="Upload image for visual search"
                 >
                   <Camera className="w-5 h-5" />
@@ -832,7 +839,7 @@ const EnhancedChatBot = () => {
                       startVoiceRecognition();
                     }
                   }}
-                  className={`px-4 py-3 rounded-xl transition-all duration-200 border ${
+                  className={`p-2 sm:px-4 sm:py-3 rounded-xl transition-all duration-200 border shrink-0 ${
                     isListening 
                       ? 'bg-gradient-to-r from-red-500 to-[#d4af37]/5 text-white border-red-500 ' 
                       : 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600 hover:border-purple-500'
@@ -847,14 +854,14 @@ const EnhancedChatBot = () => {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                  placeholder="Ask me anything about fashion..."
-                  className="flex-1 bg-[#1A162D]/50 text-white px-4 py-3 rounded-xl border border-brand-gold/20 focus:border-brand-gold/50 focus:outline-none transition-all duration-200 placeholder-gray-400"
+                  placeholder="Ask me anything..."
+                  className="flex-1 w-0 min-w-0 bg-[#1A162D]/50 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-brand-gold/20 focus:border-brand-gold/50 focus:outline-none transition-all duration-200 placeholder-gray-400 text-sm sm:text-base"
                   disabled={isTyping}
                 />
                 <button
                   onClick={() => sendMessage()}
                   disabled={isTyping || !inputMessage.trim()}
-                  className="bg-brand-gold text-navy-900 px-6 py-3 rounded-xl hover:bg-brand-goldLight transition-all duration-300 disabled:opacity-50 font-bold shadow-md transform hover:scale-105 active:scale-95 flex items-center justify-center"
+                  className="bg-brand-gold text-navy-900 px-3 sm:px-6 py-2 sm:py-3 rounded-xl hover:bg-brand-goldLight transition-all duration-300 disabled:opacity-50 font-bold shadow-md transform hover:scale-105 active:scale-95 flex items-center justify-center shrink-0"
                 >
                   <Send className="w-5 h-5" />
                 </button>
