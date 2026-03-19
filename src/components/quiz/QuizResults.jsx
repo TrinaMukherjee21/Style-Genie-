@@ -60,9 +60,9 @@ const QuizResults = () => {
           gender: ['male', 'female', 'unisex']
         },
         {
-          title: 'Clean-Cut Structured Blazer',
-          description: 'Sharp architectural blazer in neutral tones',
-          image: 'https://images.unsplash.com/photo-1593032465175-481ac7f401a0?w=300&h=400&fit=crop&auto=format&q=80',
+          title: 'Structured Modern Blazer',
+          description: 'Sharp architectural blazer in neutral charcoal tones',
+          image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=300&h=400&fit=crop&auto=format&q=80',
           category: 'outerwear',
           price: '$135',
           gender: ['male', 'female', 'unisex']
@@ -93,9 +93,9 @@ const QuizResults = () => {
         },
         // WOMEN'S ITEMS
         {
-          title: 'Simple Black Dress',
-          description: 'Elegant minimalist dress in classic black',
-          image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&h=400&fit=crop&auto=format&q=80',
+          title: 'Elegant Black Dress',
+          description: 'Flattering minimalist dress in a timeless black silhouette',
+          image: 'https://images.unsplash.com/photo-1485230895905-ec4093e81ea4?w=300&h=400&fit=crop&auto=format&q=80',
           category: 'dress',
           price: '$85',
           gender: ['female']
@@ -110,17 +110,17 @@ const QuizResults = () => {
         },
         {
           title: 'Minimalist Silk Blouse',
-          description: 'Elegant silk top in neutral ivory',
-          image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=300&h=400&fit=crop&auto=format&q=80',
+          description: 'Elegant silk top in neutral ivory tones',
+          image: 'https://images.unsplash.com/photo-1604176354204-926873ff3da9?w=300&h=400&fit=crop&auto=format&q=80',
           category: 'tops',
           price: '$78',
           gender: ['female']
         },
         // MEN'S ITEMS
         {
-          title: 'Classic Oxford Shirt',
-          description: 'Timeless button-down for refined elegance',
-          image: 'https://images.unsplash.com/photo-1598033129183-c4f50c7176c8?w=300&h=400&fit=crop&auto=format&q=80',
+          title: 'Tailored Oxford Shirt',
+          description: 'Crisp button-down for professional elegance',
+          image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=300&h=400&fit=crop&auto=format&q=80',
           category: 'tops',
           price: '$58',
           gender: ['male']
