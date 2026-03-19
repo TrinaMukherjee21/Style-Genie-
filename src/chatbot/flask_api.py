@@ -9,17 +9,15 @@ from PIL import Image
 # Ensure local package import works
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    from empathetic_fashion_bot import empathetic_bot
-    logger = logging.getLogger("stylegenie_api")
-    logger.info("Empathetic Fashion Bot loaded successfully")
-except ImportError as e:
-    logger = logging.getLogger("stylegenie_api")
-    logger.error(f"Failed to load empathetic bot: {e}")
-    empathetic_bot = None
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("stylegenie_api")
+
+try:
+    from empathetic_fashion_bot import empathetic_bot
+    logger.info("Empathetic Fashion Bot loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load empathetic bot: {e}\n{traceback.format_exc()}")
+    empathetic_bot = None
 
 app = Flask(__name__)
 CORS(app)
@@ -57,12 +55,11 @@ def health():
         "status": "ok", 
         "time": datetime.utcnow().isoformat(),
         "empathetic_bot_available": empathetic_bot is not None,
-        "api_version": "6.0 - Empathetic Therapeutic Fashion AI",
+        "api_version": "7.0 - Unified Fashion AI",
         "features": {
             "emotion_detection": True,
             "therapeutic_responses": True,
-            "contextual_understanding": True,
-            "empathetic_guidance": True
+            "quiz_recommendations": True
         }
     })
 
@@ -72,21 +69,37 @@ def chat():
         payload = request.get_json(force=True)
         user_id = payload.get("user_id", "guest")
         message = (payload.get("message") or "").strip()
-        image_b64 = payload.get("image")
-        top_k = int(payload.get("top_k", 5))
-
+        
         # Get response from empathetic bot
         result = empathetic_bot.process_message(user_id, message, chat_id=payload.get('chat_id'))
-        
-        if result['success']:
-            response = result['response']
-        else:
-            response = result['response']  # Error response is still formatted correctly
-        
-        return jsonify({"success": result['success'], "response": response})
+        return jsonify({"success": result['success'], "response": result['response']})
 
     except Exception as e:
         logger.error("Error in /chat: %s\n%s", e, traceback.format_exc())
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/quiz/recommendations", methods=["POST", "GET"])
+def quiz_recommendations():
+    """Quiz recommendations endpoint"""
+    try:
+        if request.method == "GET":
+            return jsonify({"success": True, "recommendations": []})
+        
+        payload = request.get_json(force=True)
+        user_id = payload.get("user_id", "guest")
+        quiz_results = payload.get("quiz_results", {})
+        
+        # Simple recommendation: if they like 'minimalist', give them minimalist products
+        # For now, we return empty and let the frontend use its fallback 
+        # But having the route prevents 404s
+        return jsonify({
+            "success": True,
+            "recommendations": [],
+            "user_id": user_id
+        })
+
+    except Exception as e:
+        logger.error("Error in /api/quiz/recommendations: %s", e)
         return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == "__main__":

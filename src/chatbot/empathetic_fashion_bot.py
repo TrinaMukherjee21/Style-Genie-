@@ -13,7 +13,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-class EmpathethicFashionBot:
+class EmpatheticFashionBot:
     """Intelligent fashion chatbot with emotional understanding and therapeutic responses"""
     
     def __init__(self, products_file: str = None):
@@ -351,4 +351,4 @@ class EmpathethicFashionBot:
         })
 
 # Global instance
-empathetic_bot = EmpathethicFashionBot()
+empathetic_bot = EmpatheticFashionBot()
