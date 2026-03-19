@@ -24,6 +24,8 @@ logger = logging.getLogger("stylegenie_api")
 app = Flask(__name__)
 CORS(app)
 
+logger.info("StylesGenie API Initializing...")
+
 # Use empathetic bot
 if not empathetic_bot:
     # Fallback to simple responses

@@ -4,12 +4,10 @@ services:
     name: stylegenie-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --pythonpath src/chatbot flask_api:app
+    startCommand: gunicorn --pythonpath src/chatbot --timeout 120 -b 0.0.0.0:$PORT flask_api:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.12
-      - key: PORT
-        value: 5000
 
   # Static Frontend (React)
   - type: web
