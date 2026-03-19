@@ -100,11 +100,11 @@ const RegisterPage = () => {
         </div>
 
         {/* Register Form */}
-        <div className="glass-effect rounded-2xl p-8 border border-[#d4af37]/20 shadow-2xl">
+        <div className="bg-[#1A162D] rounded-2xl p-8 border border-[#d4af37]/20 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Field */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                 Full Name
               </label>
               <div className="relative">
@@ -115,7 +115,7 @@ const RegisterPage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="input-enhanced w-full !pl-12 !pr-4 py-3"
+                  className="input-enhanced w-full !pl-12 !pr-4 py-3 bg-[#120D20] text-white focus:border-[#d4af37]"
                   placeholder="Your full name"
                   required
                 />
@@ -124,7 +124,7 @@ const RegisterPage = () => {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -135,7 +135,7 @@ const RegisterPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="input-enhanced w-full !pl-12 !pr-4 py-3"
+                  className="input-enhanced w-full !pl-12 !pr-4 py-3 bg-[#120D20] text-white focus:border-[#d4af37]"
                   placeholder="your@email.com"
                   required
                 />
@@ -144,7 +144,7 @@ const RegisterPage = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -155,7 +155,7 @@ const RegisterPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="input-enhanced w-full !pl-12 !pr-12 py-3"
+                  className="input-enhanced w-full !pl-12 !pr-12 py-3 bg-[#120D20] text-white focus:border-[#d4af37]"
                   placeholder="Create a password"
                   required
                 />
@@ -171,7 +171,7 @@ const RegisterPage = () => {
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -182,7 +182,7 @@ const RegisterPage = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="input-enhanced w-full !pl-12 !pr-12 py-3"
+                  className="input-enhanced w-full !pl-12 !pr-12 py-3 bg-[#120D20] text-white focus:border-[#d4af37]"
                   placeholder="Confirm your password"
                   required
                 />
@@ -198,7 +198,7 @@ const RegisterPage = () => {
 
             {/* Gender Selection Field */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-3">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
                 I'm shopping for (This helps us personalize your experience)
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -275,11 +275,11 @@ const RegisterPage = () => {
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-text-muted text-sm font-body">
+            <p className="text-gray-300 text-sm font-body">
               Already have an account?{' '}
               <Link 
                 to="/login" 
-                className="text-primary hover:text-accent font-semibold transition-colors"
+                className="text-[#d4af37] hover:text-[#eacc6e] font-semibold transition-colors"
               >
                 Sign in here
               </Link>

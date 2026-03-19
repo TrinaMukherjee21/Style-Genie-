@@ -89,11 +89,11 @@ const LoginPage = () => {
         </div>
 
         {/* Login Form */}
-        <div className="glass-effect rounded-2xl p-8 border border-[#d4af37]/20 shadow-2xl">
+        <div className="bg-[#1A162D] rounded-2xl p-8 border border-[#d4af37]/20 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -104,7 +104,7 @@ const LoginPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="input-enhanced w-full !pl-12 !pr-4 py-3"
+                  className="input-enhanced w-full !pl-12 !pr-4 py-3 bg-[#120D20] text-white focus:border-[#d4af37]"
                   placeholder="your@email.com"
                   required
                 />
@@ -113,7 +113,7 @@ const LoginPage = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -124,7 +124,7 @@ const LoginPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="input-enhanced w-full !pl-12 !pr-12 py-3"
+                  className="input-enhanced w-full !pl-12 !pr-12 py-3 bg-[#120D20] text-white focus:border-[#d4af37]"
                   placeholder="Enter your password"
                   required
                 />
@@ -174,11 +174,11 @@ const LoginPage = () => {
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-text-muted text-sm font-body">
+            <p className="text-gray-300 text-sm font-body">
               Don't have an account?{' '}
               <Link 
                 to="/register" 
-                className="text-primary hover:text-accent font-semibold transition-colors"
+                className="text-[#d4af37] hover:text-[#eacc6e] font-semibold transition-colors"
               >
                 Sign up here
               </Link>
