@@ -502,7 +502,7 @@ const EnhancedChatBot = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12  group-hover:animate-none"></div>
             <div className="relative z-10 flex items-center justify-center">
-              <Wand2 className="w-7 h-7 text-navy-900" />
+              <Wand2 className="w-7 h-7 text-black" />
               <Sparkles className="w-4 h-4 text-white absolute -top-1 -right-1 animate-pulse" />
             </div>
           </button>
