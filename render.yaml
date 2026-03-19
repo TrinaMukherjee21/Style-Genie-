@@ -1,0 +1,25 @@
+services:
+  # Python Backend
+  - type: web
+    name: stylegenie-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --pythonpath src/chatbot flask_api:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: PORT
+        value: 5000
+
+  # Static Frontend (React)
+  - type: static
+    name: stylegenie-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    publishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: stylegenie-backend
+          property: host

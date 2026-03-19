@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python test:*)",
+      "Bash(python test_simple_chatbot.py:*)",
+      "Bash(python:*)",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"I need an elegant dress for Christmas\"\", \"\"user_id\"\": \"\"test_user\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"I really like the black dress! Can you show me accessories for it?\"\", \"\"user_id\"\": \"\"test_user\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"Thank you! That was very helpful.\"\", \"\"user_id\"\": \"\"test_user\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"i need black jeans\"\", \"\"user_id\"\": \"\"tananya\"\"}')",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"show me some bottomwear\"\", \"\"user_id\"\": \"\"tananya\"\"}')",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"show me floral dresses\"\", \"\"user_id\"\": \"\"tananya\"\"}')",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"show me jeans\"\", \"\"user_id\"\": \"\"tananya\"\"}')",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"show me some bodycon dresses\"\", \"\"user_id\"\": \"\"test_user\"\"}')",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"Hi\"\", \"\"user_id\"\": \"\"test_user\"\"}')",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"show me blue floral tops\"\", \"\"user_id\"\": \"\"test_user\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"show some blue coloured tops\"\", \"\"user_id\"\": \"\"test_user2\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"show me blue colored tops\"\", \"\"user_id\"\": \"\"test_accurate\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"show me some bottomwear\"\", \"\"user_id\"\": \"\"test_bottom\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"hi\"\", \"\"user_id\"\": \"\"test_final\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"show me blue colored tops\"\", \"\"user_id\"\": \"\"test_final\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"tell me about yourself what is stylegenie\"\", \"\"user_id\"\": \"\"test_final\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"Can you suggest some black bottom wear\"\", \"\"user_id\"\": \"\"test_black_bottom\"\"}\")",
+      "Bash(curl -X POST http://localhost:5000/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"Can you suggest some black bottom wear\"\", \"\"user_id\"\": \"\"test_real_products\"\"}\")",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(more:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
