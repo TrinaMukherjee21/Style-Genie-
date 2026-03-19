@@ -134,9 +134,9 @@ const QuizResults = () => {
           gender: ['male']
         },
         {
-          title: 'Neutral Crewneck Sweater',
-          description: 'Soft cashmere blend in timeless beige',
-          image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=300&h=400&fit=crop&auto=format&q=80',
+          title: 'Premium Cashmere Sweater',
+          description: 'Soft cashmere blend in a timeless cream hue',
+          image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=300&h=400&fit=crop&auto=format&q=80',
           category: 'tops',
           price: '$89',
           gender: ['male', 'unisex']
@@ -414,7 +414,7 @@ const QuizResults = () => {
         {
           title: 'Statement Print Blouse',
           description: 'Eye-catching blouse with maximalist prints',
-          image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=300&h=400&fit=crop&auto=format&q=80',
+          image: 'https://images.unsplash.com/photo-1567401893414-75b77c480f57?w=300&h=400&fit=crop&auto=format&q=80',
           category: 'tops',
           price: '$68',
           gender: ['female', 'unisex']
