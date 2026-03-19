@@ -12,7 +12,7 @@ services:
         value: 5000
 
   # Static Frontend (React)
-  - type: static
+  - type: web
     name: stylegenie-frontend
     env: static
     buildCommand: npm install && npm run build
