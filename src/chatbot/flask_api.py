@@ -12,32 +12,33 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("stylegenie_api")
 
+# Fallback bot class to satisfy linter and provide safe default
+class FallbackBot:
+    def process_message(self, user_id, message, chat_id=None):
+        return {
+            'success': True,
+            'response': {
+                'text': "I'm here to help with your fashion needs! Tell me more about what you're looking for.",
+                'suggestions': [],
+                'products': []
+            }
+        }
+
+# Initial default
+empathetic_bot = FallbackBot()
+
 try:
-    from empathetic_fashion_bot import empathetic_bot
-    logger.info("Empathetic Fashion Bot loaded successfully")
+    from empathetic_fashion_bot import empathetic_bot as loaded_bot
+    if loaded_bot:
+        empathetic_bot = loaded_bot
+        logger.info("Empathetic Fashion Bot loaded successfully")
 except Exception as e:
     logger.error(f"Failed to load empathetic bot: {e}\n{traceback.format_exc()}")
-    empathetic_bot = None
 
 app = Flask(__name__)
 CORS(app)
 
 logger.info("StylesGenie API Initializing...")
-
-# Use empathetic bot
-if not empathetic_bot:
-    # Fallback to simple responses
-    class FallbackBot:
-        def process_message(self, user_id, message, chat_id=None):
-            return {
-                'success': True,
-                'response': {
-                    'text': "I'm here to help with your fashion needs! Tell me more about what you're looking for.",
-                    'suggestions': [],
-                    'products': []
-                }
-            }
-    empathetic_bot = FallbackBot()
 
 # Simple in-memory session store
 SESSIONS = {}
