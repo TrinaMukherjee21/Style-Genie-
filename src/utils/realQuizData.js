@@ -300,7 +300,7 @@ export const FEMALE_QUIZ_ITEMS = [
 export const UNISEX_QUIZ_ITEMS = [
   {
     id: 1,
-    image: '/assets/images/denim_jacket.png',
+    image: 'https://images.unsplash.com/photo-1542272847-c0e81f72787d?w=500&h=600&fit=crop&q=80',
     type: 'Oversized Denim Jacket',
     aesthetics: ['vintage', 'streetwear'],
     tags: ['denim', 'unisex', 'classic', 'versatile'],
@@ -360,7 +360,7 @@ export const UNISEX_QUIZ_ITEMS = [
   },
   {
     id: 6,
-    image: '/assets/images/ribbed_beanie.png',
+    image: 'https://images.unsplash.com/photo-1576871337622-98d48d38537d?w=500&h=600&fit=crop&q=80',
     type: 'Ribbed Knit Beanie',
     aesthetics: ['streetwear', 'casual'],
     tags: ['accessories', 'unisex', 'warm', 'comfortable'],
@@ -396,7 +396,7 @@ export const UNISEX_QUIZ_ITEMS = [
   },
   {
     id: 9,
-    image: '/assets/images/white_hoodie.png',
+    image: 'https://images.unsplash.com/photo-1551028150-64b9f398f678?w=500&h=600&fit=crop&q=80',
     type: 'White Minimalist Hoodie',
     aesthetics: ['minimalist', 'streetwear'],
     tags: ['tops', 'unisex', 'clean', 'soft'],
@@ -432,7 +432,7 @@ export const UNISEX_QUIZ_ITEMS = [
   },
   {
     id: 12,
-    image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500&h=600&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=600&fit=crop&q=80',
     type: 'Heritage Leather Backpack',
     aesthetics: ['vintage', 'preppy'],
     tags: ['accessories', 'unisex', 'durable', 'classic'],
