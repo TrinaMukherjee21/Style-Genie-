@@ -13,8 +13,8 @@ const Layout = ({ children }) => {
           className="fixed inset-0 top-20 md:top-24 opacity-30 md:opacity-50 pointer-events-none mix-blend-multiply"
           style={{
             backgroundImage: "url('/images/bg-logo.png')",
-            backgroundSize: "80% auto",
-            backgroundPosition: "center 20%",
+            backgroundSize: "contain",
+            backgroundPosition: "center 15%",
             backgroundRepeat: "no-repeat"
           }}
         />
