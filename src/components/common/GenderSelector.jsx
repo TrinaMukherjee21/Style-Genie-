@@ -20,41 +20,32 @@ const GenderSelector = ({ onGenderSelect, selectedGender }) => {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-heading font-bold mb-4 bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 bg-clip-text text-transparent">
-          Choose Your Style Journey
-        </h2>
-        <p className="text-gray-300 text-lg">
-          Help us personalize your fashion recommendations
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {genderOptions.map((option) => (
           <button
             key={option.value}
             onClick={() => handleGenderSelect(option.value)}
             className={`
-              p-6 rounded-2xl border-2 transition-all duration-300 text-left
+              p-8 rounded-3xl border-2 transition-all duration-500 text-left group
               ${selectedGender === option.value
-                ? 'border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/25'
-                : 'border-gray-600 bg-gray-800/50 hover:border-purple-400 hover:bg-purple-400/10'
+                ? 'border-[#DCB5BE] bg-[#EEDFE3]/10 shadow-[0_15px_40px_rgba(220,181,190,0.15)]'
+                : 'border-[#EEEDEB] bg-white hover:border-[#DCB5BE]/50 hover:bg-[#F5F4F3]'
               }
             `}
           >
-            <div className="flex items-center space-x-4">
-              <div className="text-3xl">{option.icon}</div>
+            <div className="flex items-center space-x-5">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
               <div className="flex-1">
-                <h3 className="text-white font-semibold text-lg mb-1">
+                <h3 className={`font-serif font-bold text-lg mb-1 ${selectedGender === option.value ? 'text-[#333333]' : 'text-[#555555]'}`}>
                   {option.label}
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-[#8E8E8E] text-xs font-medium uppercase tracking-widest opacity-70">
                   {option.description}
                 </p>
               </div>
               {selectedGender === option.value && (
-                <div className="text-brand-gold opacity-50">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <div className="text-[#DCB5BE]">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
@@ -65,9 +56,10 @@ const GenderSelector = ({ onGenderSelect, selectedGender }) => {
       </div>
 
       {selectedGender && (
-        <div className="mt-6 text-center">
-          <p className="text-brand-gold opacity-50 font-medium">
-            ✓ Perfect! Your style preferences will be tailored accordingly
+        <div className="mt-8 text-center animate-fade-in">
+          <p className="text-[#89A293] font-bold text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+            <span className="w-2 h-2 bg-[#89A293] rounded-full"></span>
+            Selection captured for your style profile
           </p>
         </div>
       )}

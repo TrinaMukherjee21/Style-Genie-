@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo, useState, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { useUserContext } from '../context/UserContext';
-import { getQuizItemsByGender } from '../utils/realQuizData';
+import { getMCQQuizByGender } from '../utils/mcqQuizData';
 import { getProductsByGender } from '../utils/enhanced_product_database';
 import { generateProfile } from '../utils/profileGenerator';
 import { quizAnalyzer } from '../utils/quizAnalyzer';
@@ -13,7 +13,7 @@ export function useQuiz() {
     quizProgress,
     currentQuizItem,
     quizAnswers,
-    quizCompleted,
+    quizCompleted, 
     setQuizProgress,
     setCurrentQuizItem,
     addQuizAnswer,
@@ -29,12 +29,20 @@ export function useQuiz() {
     submitQuiz
   } = useUserContext();
   
-  // Get gender-specific quiz items with robust detection
-  const gender = preferences?.gender || localStorage.getItem('user_gender_preference') || 'female';
-  console.log('useQuiz: Detected gender:', gender);
-  const QUIZ_ITEMS = getQuizItemsByGender(gender);
-  console.log('useQuiz: Quiz items loaded:', QUIZ_ITEMS.length, 'for gender:', gender);
-  console.log('useQuiz: First quiz item:', QUIZ_ITEMS[0]);
+  // Robust gender detection for Quiz
+  // Order of priority: 
+  // 1. User profile gender (from DB/Context)
+  // 2. Preferences state
+  // 3. LocalStorage
+  // 4. Default to female
+  const gender = user?.gender || preferences?.gender || localStorage.getItem('user_gender_preference') || 'unisex';
+  
+  const QUIZ_ITEMS = useMemo(() => {
+    console.log('useQuiz: Recalculating MOU Quiz items for gender:', gender);
+    return getMCQQuizByGender(gender);
+  }, [gender]);
+  
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   const navigate = useNavigate();
 
@@ -42,7 +50,7 @@ export function useQuiz() {
     const primaryStyle = profile.primaryAesthetic || 'minimalist';
     const secondaryStyle = profile.secondaryAesthetics?.[0] || 'vintage';
     const personalityType = profile.personalityType || 'Style Enthusiast';
-    const userGender = preferences?.gender || 'female';
+    const userGender = gender || 'unisex';
 
     // Use enhanced product database for gender-specific recommendations
     const genderProducts = getProductsByGender(userGender);
@@ -201,94 +209,6 @@ export function useQuiz() {
       // Clear old recommendations first
       setRecommendations([]);
       
-      // Generate initial recommendations and store them
-      try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(`${API_BASE_URL}/api/quiz/recommendations`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
-          },
-          body: JSON.stringify({
-            quizResults: {
-              personalityType: enhancedProfile.personalityType,
-              confidence: enhancedProfile.confidence || 0.85,
-              primaryAesthetic: enhancedProfile.primaryAesthetic,
-              secondaryAesthetics: enhancedProfile.secondaryAesthetics || [],
-              preferences: {
-                style_preferences: enhancedProfile.preferences?.style_preferences || enhancedProfile.aesthetics || {},
-                category_preferences: enhancedProfile.preferences?.category_preferences || {},
-                color_preferences: enhancedProfile.preferences?.color_preferences || {}
-              }
-            },
-            userProfile: {
-              personalityType: enhancedProfile.personalityType,
-              primaryAesthetic: enhancedProfile.primaryAesthetic,
-              aesthetics: enhancedProfile.aesthetics
-            },
-            userId: user._id || user.id,
-            generateFresh: true,
-            requestId: `quiz_complete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            timestamp: Date.now()
-          })
-        });
-
-        if (response.ok) {
-          const recommendationData = await response.json();
-          
-          // Format recommendations for inbox with unique IDs
-          const formattedRecommendations = recommendationData.products.map((product, index) => {
-            const uniqueId = `quiz_${product.id}_${Date.now()}_${index}`;
-            
-            // Generate proper product images
-            const getProductImage = (product) => {
-              const category = product.category?.toLowerCase() || 'clothing';
-              
-              const imageMap = {
-                'tops': 'photo-1521572163474-6864f9cf17ab',
-                'bottoms': 'photo-1541099649105-f69ad21f3246', 
-                'dresses': 'photo-1595777457583-95e059d581b8',
-                'outerwear': 'photo-1551028719-00167b16eac5',
-                'shoes': 'photo-1549298916-b41d501d3772',
-                'accessories': 'photo-1553062407-98eeb64c6a62',
-                'default': 'photo-1556905055-8f358a7a47b2'
-              };
-              
-              const imageId = imageMap[category] || imageMap['default'];
-              return `https://images.unsplash.com/${imageId}?w=300&h=400&fit=crop&auto=format&q=80`;
-            };
-            
-            return {
-              id: uniqueId,
-              title: product.title,
-              price: product.price,
-              image: getProductImage(product),
-              description: `${product.aesthetic} style`,
-              aesthetic: product.aesthetic,
-              category: product.category,
-              score: product.score,
-              reasoning: product.reasoning || `Perfect match for your ${enhancedProfile.personalityType} style`,
-              aiMessage: `Hey! I found this ${product.title} that's absolutely perfect for your ${enhancedProfile.primaryAesthetic} aesthetic. ${product.reasoning || 'It matches your style preferences beautifully!'}`,
-              compatibility: `${Math.round(product.score * 100)}% match`,
-              tags: [product.aesthetic, product.category],
-              socialProof: `${Math.floor(Math.random() * 500) + 100} people with similar style love this`,
-              inStock: Math.random() > 0.2,
-              timestamp: Date.now(),
-              source: 'quiz_completion'
-            };
-          });
-
-          // Store recommendations in context for dashboard
-          setRecommendations(formattedRecommendations);
-        }
-      } catch (error) {
-        console.error('Error fetching recommendations:', error);
-        // Generate fallback recommendations
-        const fallbackRecommendations = generateFallbackRecommendations(enhancedProfile);
-        setRecommendations(fallbackRecommendations);
-      }
-      
       // Mark quiz as completed in context
       markQuizComplete();
       
@@ -303,30 +223,45 @@ export function useQuiz() {
     }
   }, [updateUserProfile, submitQuiz, setRecommendations, navigate]);
 
-  const handleQuizAnswer = useCallback((preference, itemId) => {
-    // Enhanced answer format to capture detailed preferences
+  const handleQuizAnswer = useCallback((optionIndex, itemId) => {
+    if (isTransitioning) return;
+    
+    // Check if we already answered this specific item in this transition
+    console.log(`QUIZ: Hook received answer for ${itemId}, index ${optionIndex}`);
+    
+    const currentItem = QUIZ_ITEMS.find(item => item.id === itemId);
+    const selectedOption = currentItem?.options[optionIndex];
+
     const answer = {
       itemId,
-      preference, // 'love', 'like', 'dislike', 'hate'
-      liked: preference === 'love' || preference === 'like',
+      optionIndex,
+      selectedOption,
+      preference: 'love',
+      liked: true,
       timestamp: Date.now(),
-      item: QUIZ_ITEMS.find(item => item.id === itemId)
+      item: {
+        ...currentItem,
+        aesthetics: selectedOption?.aesthetics || [],
+        tags: selectedOption?.tags || [],
+        category: selectedOption?.category || 'mixed'
+      }
     };
     
-    console.log('Quiz Answer:', answer);
-    console.log('Current Quiz Item:', currentQuizItem, 'Total Items:', QUIZ_ITEMS.length);
-    console.log('Gender-specific quiz for:', preferences?.gender);
     addQuizAnswer(answer);
+    setIsTransitioning(true);
 
-    if (currentQuizItem < QUIZ_ITEMS.length - 1) {
-      setCurrentQuizItem(currentQuizItem + 1);
-      setQuizProgress(((currentQuizItem + 1) / QUIZ_ITEMS.length) * 100);
-    } else {
-      // Quiz completed
-      console.log('Quiz completed! Calling completeQuiz with answers:', [...quizAnswers, answer]);
-      completeQuiz([...quizAnswers, answer]);
-    }
-  }, [currentQuizItem, quizAnswers, addQuizAnswer, setCurrentQuizItem, setQuizProgress, completeQuiz]);
+    // Delayed transition
+    setTimeout(() => {
+      console.log('QUIZ: Executing delayed state transition');
+      if (currentQuizItem < QUIZ_ITEMS.length - 1) {
+        setCurrentQuizItem(currentQuizItem + 1);
+        setQuizProgress(((currentQuizItem + 1) / QUIZ_ITEMS.length) * 100);
+      } else {
+        completeQuiz([...quizAnswers, answer]);
+      }
+      setIsTransitioning(false);
+    }, 1200);
+  }, [currentQuizItem, quizAnswers, addQuizAnswer, setCurrentQuizItem, setQuizProgress, completeQuiz, QUIZ_ITEMS, isTransitioning]);
 
   const startQuiz = useCallback(() => {
     console.log('startQuiz called - resetting quiz and navigating...');
@@ -349,6 +284,7 @@ export function useQuiz() {
     handleQuizAnswer,
     startQuiz,
     resetQuiz,
-    isQuizComplete: currentQuizItem >= QUIZ_ITEMS.length
+    isQuizComplete: currentQuizItem >= QUIZ_ITEMS.length,
+    isTransitioning
   };
 }

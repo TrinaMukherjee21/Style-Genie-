@@ -38,14 +38,30 @@ const ProtectedRoute = ({ children, requireQuiz = false }) => {
       <div className="min-h-screen bg-brand-navy flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" color="purple" />
-          <p className="text-white mt-4">Loading your profile...</p>
+          <p className="text-white mt-4 font-bold">Authenticating with Aura Style...</p>
         </div>
       </div>
     );
   }
 
+  // Panic Guard: If user is missing but we just started, wait a moment before redirecting
+  // This prevents flickering redirects during state updates
+  if (!user && !loading) {
+     const token = localStorage.getItem('access_token');
+     if (token) {
+       return (
+         <div className="min-h-screen bg-brand-navy flex items-center justify-center">
+           <LoadingSpinner size="lg" color="purple" />
+         </div>
+       );
+     }
+  }
+
   // Check if user is authenticated
   if (!user) {
+    if (!loading) {
+      console.warn('ProtectedRoute: user is null while loading is false. Redirecting to /login');
+    }
     return <Navigate to="/login" replace />;
   }
 

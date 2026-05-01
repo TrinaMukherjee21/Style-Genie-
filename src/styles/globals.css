@@ -4,30 +4,37 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Deep Navy & Gold Color Palette */
+/* Blush & Minimal Light Theme */
 :root {
-  --color-primary: #d4af37;        /* Gold */
-  --color-secondary: #c0a0e6;      /* Lavender */
-  --color-accent: #eacc6e;         /* Light Gold */
-  --color-success: #10B981;        
-  --color-warning: #F59E0B;        
-  --color-danger: #EF4444;         
+  --color-primary: #DCB5BE;         /* Classic Blush Pink */
+  --color-secondary: #89A293;       /* Sage Green */
+  --color-accent: #EEDFE3;          /* Soft Blush */
+  --color-bg-light: #F5F4F3;        /* Off-White / Cream */
+  --color-bg-pure: #FFFFFF;         /* Pure White */
+  --color-gray-warm: #EEEDEB;       /* Warm Gray */
   
-  /* Dark Theme Background Colors */
-  --color-dark-bg: #120D20;        /* Deep Space Navy */
-  --color-dark-surface: #1A162D;   /* Darker surface */
-  --color-dark-card: #221A3B;      /* Card background */
-  --color-dark-border: #35295D;    /* Border color */
-  --color-dark-hover: #2D234A;     /* Hover states */
+  --color-success: #89A293;         /* Using Sage for success to match palette */
+  --color-warning: #EEDFE3;        
+  --color-danger: #DCB5BE;         
   
-  --color-text-primary: #F8FAFC;   
-  --color-text-secondary: #CBD5E1; 
-  --color-text-muted: #94A3B8;     
+  /* Light Theme Background Colors */
+  --color-light-bg: #FFFFFF;        
+  --color-light-surface: #F5F4F3;   
+  --color-light-card: #FFFFFF;      
+  --color-light-border: #EEEDEB;    
+  --color-light-hover: #EEDFE3;     
   
-  /* Glass Effect for Dark Theme */
-  --glass-bg: rgba(26, 22, 45, 0.85);
-  --glass-border: rgba(212, 175, 55, 0.15);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  --color-text-primary: #333333;    /* Slightly softer black for premium feel */
+  --color-text-secondary: #555555;  
+  --color-text-muted: #8E8E8E;      
+  
+  --color-brand-dark: #1E1A1B;      /* Deep Charcoal Plum */
+  --color-brand-black: #121212;     /* Rich Ebony */
+  
+  /* Minimalist Glass Effect - Refined */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(220, 181, 190, 0.3); 
+  --glass-shadow: 0 12px 40px rgba(137, 162, 147, 0.1); /* Subtle Sage tint shadow */
 }
 
 /* Global Styles */
@@ -36,7 +43,7 @@
 html, body {
   height: 100%;
   font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--color-dark-bg);
+  background: var(--color-light-bg);
   color: var(--color-text-primary);
   scroll-behavior: smooth;
   overflow-x: hidden;
@@ -44,96 +51,115 @@ html, body {
 
 #root {
   min-height: 100vh;
-  background: var(--color-dark-bg);
+  background: var(--color-light-bg);
 }
 
 /* Base Utility Classes */
-.bg-brand-navy { background-color: var(--color-dark-bg) !important; }
-.bg-brand-dark, .bg-dark-secondary { background-color: var(--color-dark-surface) !important; }
-.bg-dark-card { background-color: var(--color-dark-card) !important; box-shadow: var(--glass-shadow); border: 1px solid var(--color-dark-border); }
+.bg-brand-white { background-color: var(--color-light-bg) !important; }
+.bg-brand-light, .bg-light-secondary { background-color: var(--color-light-surface) !important; }
+.bg-light-card { background-color: var(--color-light-card) !important; box-shadow: var(--glass-shadow); border: 1px solid var(--color-light-border); }
 
 .glass-effect {
   background: var(--glass-bg) !important;
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  color: #FFFFFF !important;
+  color: var(--color-text-primary) !important;
 }
 
-/* Button Styles - Minimalist Gold & Lavender */
+/* Button Styles - Blush & Minimal */
 .btn-primary {
   background-color: var(--color-primary);
-  color: #000 !important;
+  color: var(--color-text-primary) !important;
   border: 1px solid var(--color-primary);
   transition: all 0.2s ease;
-  font-weight: 600;
-  border-radius: 8px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 .btn-primary:hover {
-  background-color: var(--color-accent);
+  background-color: #ffb1c1; /* Deeper pink */
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 192, 203, 0.4);
 }
 
 .btn-secondary {
-  background-color: var(--color-dark-surface);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-dark-border);
-  transition: all 0.2s ease;
-  border-radius: 8px;
+  background-color: var(--color-brand-dark);
+  color: #FFFFFF !important;
+  border: 1px solid var(--color-brand-dark);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
 }
 .btn-secondary:hover {
-  border-color: var(--color-primary);
+  background-color: var(--color-brand-black);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(30, 26, 27, 0.2);
 }
 
 .btn-accent {
-  background-color: var(--color-secondary);
-  color: #000 !important;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: var(--color-brand-dark) !important;
+  border: 1px solid var(--color-light-border);
+  transition: all 0.5s ease;
+  font-weight: 700;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
-.btn-accent:hover { opacity: 0.9; }
+.btn-accent:hover { 
+  background-color: var(--color-bg-light);
+  border-color: var(--color-primary);
+}
 
 .btn-outline {
   background-color: transparent;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary) !important;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  border-radius: 8px;
+  border: 1px solid var(--color-brand-dark);
+  color: var(--color-brand-dark) !important;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
 }
 .btn-outline:hover {
-  background-color: var(--color-primary);
-  color: #000 !important;
+  background-color: var(--color-brand-dark);
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
 }
 
 /* Card Styles */
 .card-enhanced, .card-premium, .feature-highlight {
-  background: var(--color-dark-card) !important;
-  border: 1px solid var(--color-dark-border) !important;
-  border-radius: 16px;
+  background: var(--color-light-card) !important;
+  border: 1px solid var(--color-light-border) !important;
+  border-radius: 20px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  color: var(--color-text-primary) !important;
   overflow: hidden;
 }
 .card-enhanced:hover, .card-premium:hover {
-  transform: translateY(-4px);
-  border-color: rgba(212, 175, 55, 0.4) !important; 
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(-6px);
+  border-color: var(--color-primary) !important; 
+  box-shadow: 0 12px 24px rgba(255, 192, 203, 0.2);
 }
 
 /* Typography Overrides (Nullifying glows) */
 .font-heading { font-family: 'Georgia', serif; font-weight: 600; }
 .font-body { font-family: 'Inter', sans-serif; }
 .text-hero {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(2rem, 8vw, 4rem);
   font-family: 'Georgia', serif;
   font-weight: 600;
   font-style: italic;
   color: var(--color-primary);
-  line-height: 1.1;
-  text-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+  line-height: 1.2;
+  text-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
 }
 
 .text-subtitle {
@@ -168,49 +194,58 @@ html, body {
   text-shadow: none !important;
 }
 
-/* Inputs & Navigation & Other necessary class stubs */
+/* Inputs & Navigation */
 .input-enhanced {
-  background-color: var(--color-dark-surface);
-  border: 1px solid var(--color-dark-border);
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-light-border);
   color: var(--color-text-primary);
   border-radius: 12px;
   padding: 12px 16px;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 }
-.input-enhanced:focus { outline: none; border-color: var(--color-primary); }
+.input-enhanced:focus { 
+  outline: none; 
+  border-color: var(--color-primary); 
+  box-shadow: 0 0 0 4px rgba(255, 192, 203, 0.2);
+}
 
 .nav-enhanced {
-  background: rgba(18, 13, 32, 0.8) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-dark-border);
+  border-bottom: 1px solid var(--color-light-border);
 }
 .nav-item-enhanced {
   padding: 8px 16px;
-  border-radius: 8px;
-  transition: background 0.2s;
-  font-weight: 500;
+  border-radius: 12px;
+  transition: all 0.2s;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
-.nav-item-enhanced:hover { background: rgba(212, 175, 55, 0.2); }
-.nav-item-active { background: rgba(212, 175, 55, 0.1); color: var(--color-primary); }
+.nav-item-enhanced:hover { 
+  background: var(--color-light-hover); 
+  color: var(--color-text-primary);
+}
+.nav-item-active { 
+  background: var(--color-primary); 
+  color: var(--color-text-primary); 
+}
 
 .progress-bar-enhanced {
-  background-color: var(--color-dark-surface);
+  background-color: var(--color-light-surface);
   border-radius: 8px;
   height: 8px;
   overflow: hidden;
 }
-.progress-fill-purple, .progress-fill-pink {
-  background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+.progress-fill-pink {
+  background: var(--color-primary);
   height: 100%;
   border-radius: 8px;
 }
 
-/* Background Patterns removal as needed */
-
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--color-dark-bg); }
+::-webkit-scrollbar-track { background: var(--color-light-bg); }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-dark-border);
+  background: var(--color-light-border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
@@ -233,4 +268,52 @@ html, body {
 .animate-shimmer {
   background-size: 200% 100%;
   animation: shimmer 3s infinite linear;
+}
+
+@keyframes pulse-once {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.4s ease-out forwards;
+}
+
+/* ============================================================
+   GLOBAL TEXT VISIBILITY OVERRIDE
+   Forces all legacy white/light text to be readable on white backgrounds
+   ============================================================ */
+
+/* Kill ALL dark gradient backgrounds that still appear from old components */
+[class*="to-[#120D20]"],
+[class*="to-[#1A162D]"],
+[class*="to-[#221A3B]"] {
+  background: transparent !important;
+}
+
+/* Force black backgrounds on elements that should be light */
+.bg-dark-card { background-color: #FFFFFF !important; }
+.bg-dark-primary { background-color: #FFFFFF !important; }
+.bg-dark-surface { background-color: #FFF5F7 !important; }
+
+/* Kill white/glow text shadows */
+h1, h2, h3, h4, h5, h6 {
+  text-shadow: none !important;
+  line-height: 1.2 !important;
+}
+
+@media (max-width: 768px) {
+  h1, h2 {
+    line-height: 1.1 !important;
+  }
+}
+
+/* Ensure gradient text fallback */
+.text-shimmer, .accent-text {
+  color: #D48898 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: #D48898 !important;
 }

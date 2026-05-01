@@ -1,0 +1,1260 @@
+[
+  {
+    "id": "min_001",
+    "name": "Essential White Cotton Tee",
+    "description": "Premium minimalist t-shirt in pure white cotton. The ultimate clean style essential.",
+    "image_url": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+    "category": "tops",
+    "price": 42,
+    "style": [
+      "minimalist"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "essential",
+      "clean",
+      "white",
+      "modern",
+      "basic"
+    ]
+  },
+  {
+    "id": "min_002",
+    "name": "Structured Modern Blazer",
+    "description": "Sharp architectural blazer in neutral charcoal. Effortless minimalist elegance.",
+    "image_url": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea",
+    "category": "outerwear",
+    "price": 135,
+    "style": [
+      "minimalist",
+      "preppy"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "blazer",
+      "tailored",
+      "neutral",
+      "clean",
+      "structured"
+    ]
+  },
+  {
+    "id": "min_003",
+    "name": "Minimalist White Sneakers",
+    "description": "Clean leather sneakers with a sleek, low-profile design. Minimal and versatile.",
+    "image_url": "https://images.unsplash.com/photo-1549298916-b41d501d3772",
+    "category": "shoes",
+    "price": 95,
+    "style": [
+      "minimalist",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "sneakers",
+      "white",
+      "clean",
+      "leather",
+      "minimal"
+    ]
+  },
+  {
+    "id": "min_004",
+    "name": "Slim Fit Chino Trousers",
+    "description": "Versatile slim-cut chinos in warm sand. Classic minimalist bottom wear.",
+    "image_url": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=500&fit=crop&auto=format&q=80",
+    "category": "bottoms",
+    "price": 72,
+    "style": [
+      "minimalist",
+      "preppy"
+    ],
+    "gender": [
+      "male",
+      "unisex"
+    ],
+    "tags": [
+      "chino",
+      "slim",
+      "trousers",
+      "neutral",
+      "clean"
+    ]
+  },
+  {
+    "id": "min_005",
+    "name": "Sleek Wristwatch",
+    "description": "Minimalist timepiece with a clean dial and slim silhouette. Effortless authority.",
+    "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+    "category": "accessories",
+    "price": 198,
+    "style": [
+      "minimalist"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "watch",
+      "minimal",
+      "sleek",
+      "timeless",
+      "refined"
+    ]
+  },
+  {
+    "id": "min_006",
+    "name": "Minimalist Leather Tote",
+    "description": "Clean-lined structured leather tote in neutral tones. Precision crafted.",
+    "image_url": "https://images.unsplash.com/photo-1590874103328-eac38a683ce7",
+    "category": "accessories",
+    "price": 125,
+    "style": [
+      "minimalist"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "tote",
+      "leather",
+      "neutral",
+      "clean",
+      "bag"
+    ]
+  },
+  {
+    "id": "vin_001",
+    "name": "Classic Leather Moto Jacket",
+    "description": "Timeless moto leather jacket with vintage appeal. Authentic biker heritage.",
+    "image_url": "photo-1520975954732-4cdd221fca09",
+    "category": "outerwear",
+    "price": 195,
+    "style": [
+      "vintage",
+      "streetwear",
+      "gothic"
+    ],
+    "gender": [
+      "male",
+      "unisex"
+    ],
+    "tags": [
+      "leather",
+      "moto",
+      "jacket",
+      "biker",
+      "vintage",
+      "classic"
+    ]
+  },
+  {
+    "id": "vin_002",
+    "name": "Heritage Denim Jacket",
+    "description": "Authentic vintage wash denim jacket with classic heritage detailing.",
+    "image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5",
+    "category": "outerwear",
+    "price": 78,
+    "style": [
+      "vintage",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "denim",
+      "jacket",
+      "heritage",
+      "vintage",
+      "authentic"
+    ]
+  },
+  {
+    "id": "vin_003",
+    "name": "Vintage Band Tee",
+    "description": "Authentic retro concert tee with worn-in vintage graphic print. Nostalgic and cool.",
+    "image_url": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a",
+    "category": "tops",
+    "price": 45,
+    "style": [
+      "vintage",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "band",
+      "tee",
+      "graphic",
+      "retro",
+      "vintage",
+      "concert"
+    ]
+  },
+  {
+    "id": "vin_004",
+    "name": "Retro High-Waisted Jeans",
+    "description": "Classic vintage-fit high-waisted jeans in premium denim. Timeless and flattering.",
+    "image_url": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246",
+    "category": "bottoms",
+    "price": 65,
+    "style": [
+      "vintage"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "high-waisted",
+      "jeans",
+      "denim",
+      "retro",
+      "vintage",
+      "classic"
+    ]
+  },
+  {
+    "id": "vin_005",
+    "name": "Vintage Inspired Sunglasses",
+    "description": "Classic round frames with warm amber lenses and golden details. Retro iconic.",
+    "image_url": "https://images.unsplash.com/photo-1511499767150-a48a237f0083",
+    "category": "accessories",
+    "price": 42,
+    "style": [
+      "vintage",
+      "boho"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "sunglasses",
+      "round",
+      "vintage",
+      "retro",
+      "accessories"
+    ]
+  },
+  {
+    "id": "vin_006",
+    "name": "Retro Leather Satchel",
+    "description": "Handcrafted leather satchel bag with vintage charm and brass hardware.",
+    "image_url": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa",
+    "category": "accessories",
+    "price": 110,
+    "style": [
+      "vintage",
+      "preppy"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "satchel",
+      "leather",
+      "bag",
+      "vintage",
+      "handcrafted"
+    ]
+  },
+  {
+    "id": "str_001",
+    "name": "Urban Oversized Hoodie",
+    "description": "Street-ready oversized hoodie with modern urban edge. The streetwear essential.",
+    "image_url": "https://images.unsplash.com/photo-1556821840-3a63f95609a7",
+    "category": "tops",
+    "price": 72,
+    "style": [
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "hoodie",
+      "oversized",
+      "urban",
+      "street",
+      "comfort",
+      "bold"
+    ]
+  },
+  {
+    "id": "str_002",
+    "name": "High-Top Street Sneakers",
+    "description": "Classic high-top sneakers with contemporary streetwear updates. Iconic style.",
+    "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+    "category": "shoes",
+    "price": 95,
+    "style": [
+      "streetwear",
+      "cyberpunk"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "sneakers",
+      "high-top",
+      "street",
+      "urban",
+      "bold"
+    ]
+  },
+  {
+    "id": "str_003",
+    "name": "Graphic Street Tee",
+    "description": "Bold street-culture graphic tee. Authentic expression meets modern style.",
+    "image_url": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a",
+    "category": "tops",
+    "price": 38,
+    "style": [
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "graphic",
+      "tee",
+      "bold",
+      "street",
+      "urban",
+      "expressive"
+    ]
+  },
+  {
+    "id": "str_004",
+    "name": "Premium Cargo Pants",
+    "description": "Functional multi-pocket cargo pants with a street style silhouette.",
+    "image_url": "https://images.unsplash.com/photo-1552902865-b72c031ac5ea",
+    "category": "bottoms",
+    "price": 68,
+    "style": [
+      "streetwear",
+      "cyberpunk"
+    ],
+    "gender": [
+      "male",
+      "unisex"
+    ],
+    "tags": [
+      "cargo",
+      "pants",
+      "functional",
+      "street",
+      "urban"
+    ]
+  },
+  {
+    "id": "str_005",
+    "name": "Classic Bomber Jacket",
+    "description": "Authentic nylon bomber with ribbed cuffs and bold varsity energy.",
+    "image_url": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=500&fit=crop&auto=format&q=80",
+    "category": "outerwear",
+    "price": 98,
+    "style": [
+      "streetwear",
+      "vintage"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "bomber",
+      "jacket",
+      "nylon",
+      "varsity",
+      "street"
+    ]
+  },
+  {
+    "id": "str_006",
+    "name": "Streetwear Bucket Hat",
+    "description": "Versatile bucket hat for an authentic urban streetwear aesthetic.",
+    "image_url": "https://images.unsplash.com/photo-1576828831022-ae41d437a78e",
+    "category": "accessories",
+    "price": 25,
+    "style": [
+      "streetwear",
+      "vintage"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "bucket",
+      "hat",
+      "urban",
+      "street",
+      "accessories"
+    ]
+  },
+  {
+    "id": "pre_001",
+    "name": "Classic Polo Shirt",
+    "description": "Timeless premium cotton polo. The foundation of preppy sophistication.",
+    "image_url": "https://images.unsplash.com/photo-1598033129183-c4f50c7176c8",
+    "category": "tops",
+    "price": 58,
+    "style": [
+      "preppy",
+      "minimalist"
+    ],
+    "gender": [
+      "male",
+      "unisex"
+    ],
+    "tags": [
+      "polo",
+      "oxford",
+      "preppy",
+      "classic",
+      "tailored",
+      "elegant"
+    ]
+  },
+  {
+    "id": "pre_002",
+    "name": "Striped Breton Top",
+    "description": "Nautical-inspired Breton stripe top. Preppy classics with French sophistication.",
+    "image_url": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105",
+    "category": "tops",
+    "price": 52,
+    "style": [
+      "preppy",
+      "minimalist"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "stripe",
+      "breton",
+      "nautical",
+      "preppy",
+      "chic"
+    ]
+  },
+  {
+    "id": "pre_003",
+    "name": "Navy Tailored Blazer",
+    "description": "Sophisticated navy blazer for the modern professional. Timeless elegance.",
+    "image_url": "https://images.unsplash.com/photo-1548126032-079a0fb0099d",
+    "category": "outerwear",
+    "price": 145,
+    "style": [
+      "preppy",
+      "minimalist"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "blazer",
+      "navy",
+      "tailored",
+      "sophisticated",
+      "elegant",
+      "preppy"
+    ]
+  },
+  {
+    "id": "pre_004",
+    "name": "Gold Chain Necklace",
+    "description": "Elegant layered gold chain necklace. The perfect finishing touch for any sophisticated look.",
+    "image_url": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908",
+    "category": "accessories",
+    "price": 85,
+    "style": [
+      "preppy",
+      "maximalist"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "gold",
+      "chain",
+      "necklace",
+      "elegant",
+      "jewelry"
+    ]
+  },
+  {
+    "id": "pre_005",
+    "name": "Designer Leather Handbag",
+    "description": "Sophisticated structured leather handbag with timeless silhouette.",
+    "image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62",
+    "category": "accessories",
+    "price": 185,
+    "style": [
+      "preppy",
+      "minimalist"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "handbag",
+      "leather",
+      "designer",
+      "sophisticated",
+      "elegant"
+    ]
+  },
+  {
+    "id": "boh_001",
+    "name": "Bohemian Floral Maxi Dress",
+    "description": "Free-spirited boho maxi dress with artistic floral patterns and flowing silhouette.",
+    "image_url": "https://images.unsplash.com/photo-1469334031218-e382a71b716b",
+    "category": "dress",
+    "price": 68,
+    "style": [
+      "boho",
+      "romantic"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "bohemian",
+      "floral",
+      "maxi",
+      "dress",
+      "flowing",
+      "artistic",
+      "free"
+    ]
+  },
+  {
+    "id": "boh_002",
+    "name": "Artisanal Statement Jewelry",
+    "description": "Unique handcrafted pieces for expressive boho layering. Every piece tells a story.",
+    "image_url": "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d",
+    "category": "accessories",
+    "price": 34,
+    "style": [
+      "boho",
+      "vintage",
+      "maximalist"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "artisan",
+      "jewelry",
+      "handcrafted",
+      "bohemian",
+      "expressive"
+    ]
+  },
+  {
+    "id": "boh_003",
+    "name": "Macrame Shoulder Bag",
+    "description": "Boho-chic macrame bag with authentic woven details and natural textures.",
+    "image_url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3",
+    "category": "accessories",
+    "price": 52,
+    "style": [
+      "boho"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "macrame",
+      "woven",
+      "bag",
+      "bohemian",
+      "natural",
+      "artisan"
+    ]
+  },
+  {
+    "id": "boh_004",
+    "name": "Woven Leather Sandals",
+    "description": "Handcrafted leather sandals with bohemian woven charm. Natural and elegant.",
+    "image_url": "https://images.unsplash.com/photo-1544966503-7cc5ac882d5b",
+    "category": "shoes",
+    "price": 48,
+    "style": [
+      "boho",
+      "vintage"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "sandals",
+      "woven",
+      "leather",
+      "handcrafted",
+      "bohemian",
+      "natural"
+    ]
+  },
+  {
+    "id": "boh_005",
+    "name": "Relaxed Linen Shirt",
+    "description": "Breezy linen shirt in warm natural tones. Effortless boho ease.",
+    "image_url": "https://images.unsplash.com/photo-1523381210434-271e8be1f52b",
+    "category": "tops",
+    "price": 54,
+    "style": [
+      "boho",
+      "minimalist"
+    ],
+    "gender": [
+      "male",
+      "unisex"
+    ],
+    "tags": [
+      "linen",
+      "shirt",
+      "relaxed",
+      "natural",
+      "earthy",
+      "boho"
+    ]
+  },
+  {
+    "id": "boh_006",
+    "name": "Patterned Wrap Skirt",
+    "description": "Vibrant patterned wrap skirt with ethnic art-inspired print. Boho maximalist energy.",
+    "image_url": "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa",
+    "category": "bottoms",
+    "price": 55,
+    "style": [
+      "boho",
+      "maximalist"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "wrap",
+      "skirt",
+      "patterned",
+      "ethnic",
+      "artistic",
+      "bohemian"
+    ]
+  },
+  {
+    "id": "got_001",
+    "name": "Black Platform Boots",
+    "description": "Dramatic black platform boots with bold silhouette. Iconic gothic presence.",
+    "image_url": "photo-1605106130026-bpAZR__U1Ic",
+    "category": "shoes",
+    "price": 125,
+    "style": [
+      "gothic"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "platform",
+      "boots",
+      "black",
+      "gothic",
+      "dramatic",
+      "bold",
+      "dark"
+    ]
+  },
+  {
+    "id": "got_002",
+    "name": "Leather Combat Boots",
+    "description": "Rugged leather combat boots with rebellious gothic spirit. Made to make a statement.",
+    "image_url": "photo-1608256246200-53e8b694267f",
+    "category": "shoes",
+    "price": 98,
+    "style": [
+      "gothic",
+      "streetwear",
+      "vintage"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "combat",
+      "boots",
+      "leather",
+      "gothic",
+      "rebellious",
+      "dark",
+      "rugged"
+    ]
+  },
+  {
+    "id": "got_003",
+    "name": "Gothic Leather Jacket",
+    "description": "Dark elegance meets gothic edge in this premium black leather jacket.",
+    "image_url": "photo-1520975954732-4cdd221fca09",
+    "category": "outerwear",
+    "price": 185,
+    "style": [
+      "gothic",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "leather",
+      "jacket",
+      "gothic",
+      "dark",
+      "edgy",
+      "black",
+      "alternative"
+    ]
+  },
+  {
+    "id": "got_004",
+    "name": "Lace Corset Dress",
+    "description": "Dark romantic elegance in black lace. The essence of gothic femininity.",
+    "image_url": "https://images.unsplash.com/photo-1595777457583-95e059d581b8",
+    "category": "dress",
+    "price": 95,
+    "style": [
+      "gothic",
+      "romantic"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "lace",
+      "corset",
+      "dress",
+      "gothic",
+      "dark",
+      "romantic",
+      "feminine",
+      "black"
+    ]
+  },
+  {
+    "id": "got_005",
+    "name": "Silver Skull Ring",
+    "description": "Bold sterling silver skull ring — a gothic symbolism statement piece.",
+    "image_url": "photo-1606760227091-3dd870d97f1d",
+    "category": "accessories",
+    "price": 45,
+    "style": [
+      "gothic"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "skull",
+      "ring",
+      "silver",
+      "gothic",
+      "dark",
+      "statement",
+      "bold",
+      "alternative"
+    ]
+  },
+  {
+    "id": "got_006",
+    "name": "Velvet Choker Necklace",
+    "description": "Elegant black velvet choker with gothic lace detailing. Dark romantic charm.",
+    "image_url": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908",
+    "category": "accessories",
+    "price": 28,
+    "style": [
+      "gothic",
+      "romantic"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "choker",
+      "velvet",
+      "gothic",
+      "dark",
+      "lace",
+      "romantic",
+      "necklace"
+    ]
+  },
+  {
+    "id": "got_007",
+    "name": "Fishnet Layering Tee",
+    "description": "Edgy fishnet top perfect for gothic layering. Authentic alternative aesthetic.",
+    "image_url": "photo-1512436991641-6745cdb1723f",
+    "category": "tops",
+    "price": 22,
+    "style": [
+      "gothic",
+      "streetwear"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "fishnet",
+      "top",
+      "gothic",
+      "alternative",
+      "edgy",
+      "dark",
+      "layering"
+    ]
+  },
+  {
+    "id": "got_008",
+    "name": "Black Skinny Jeans",
+    "description": "Essential black skinny jeans for any gothic or dark aesthetic wardrobe.",
+    "image_url": "photo-1598507020058-a81b6a67c8bb",
+    "category": "bottoms",
+    "price": 58,
+    "style": [
+      "gothic",
+      "minimalist",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "black",
+      "jeans",
+      "skinny",
+      "gothic",
+      "dark",
+      "essential"
+    ]
+  },
+  {
+    "id": "cyb_001",
+    "name": "Techwear Utility Jacket",
+    "description": "Futuristic multi-pocket techwear jacket. Functional design meets cyberpunk innovation.",
+    "image_url": "https://images.unsplash.com/photo-1525450824786-227cbef70703?w=400&h=500&fit=crop&auto=format&q=80",
+    "category": "outerwear",
+    "price": 145,
+    "style": [
+      "cyberpunk",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "techwear",
+      "utility",
+      "jacket",
+      "futuristic",
+      "cyberpunk",
+      "tech",
+      "functional"
+    ]
+  },
+  {
+    "id": "cyb_002",
+    "name": "Cyber Neon Sneakers",
+    "description": "Next-gen footwear with electric neon details. Cyberpunk streets meets high fashion.",
+    "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+    "category": "shoes",
+    "price": 125,
+    "style": [
+      "cyberpunk",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "sneakers",
+      "neon",
+      "cyber",
+      "futuristic",
+      "digital",
+      "bold"
+    ]
+  },
+  {
+    "id": "cyb_003",
+    "name": "Neon Accent Graphic Tee",
+    "description": "Cutting-edge graphic tee with electric neon accent details. Digital culture vibes.",
+    "image_url": "https://images.unsplash.com/photo-1503341504253-dff4815485f1",
+    "category": "tops",
+    "price": 48,
+    "style": [
+      "cyberpunk",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "neon",
+      "graphic",
+      "tee",
+      "digital",
+      "cyber",
+      "futuristic",
+      "electric"
+    ]
+  },
+  {
+    "id": "cyb_004",
+    "name": "Digital LED Watch",
+    "description": "Futuristic LED timepiece with chrome finish. The cyberpunk wristwear of tomorrow.",
+    "image_url": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5",
+    "category": "accessories",
+    "price": 165,
+    "style": [
+      "cyberpunk",
+      "minimalist"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "led",
+      "watch",
+      "digital",
+      "futuristic",
+      "chrome",
+      "tech",
+      "cyberpunk"
+    ]
+  },
+  {
+    "id": "cyb_005",
+    "name": "Reflective Track Pants",
+    "description": "Sleek reflective track pants with future-forward tech aesthetic.",
+    "image_url": "https://images.unsplash.com/photo-1552902865-b72c031ac5ea",
+    "category": "bottoms",
+    "price": 85,
+    "style": [
+      "cyberpunk",
+      "streetwear"
+    ],
+    "gender": [
+      "male",
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "track",
+      "pants",
+      "reflective",
+      "tech",
+      "futuristic",
+      "cyberpunk"
+    ]
+  },
+  {
+    "id": "max_001",
+    "name": "Bold Floral Kimono",
+    "description": "Vibrant kimono with fearless large-scale floral patterns. Maximum expression.",
+    "image_url": "photo-1599426344588-w4gN2AE9xuE",
+    "category": "outerwear",
+    "price": 78,
+    "style": [
+      "maximalist",
+      "boho"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "kimono",
+      "floral",
+      "vibrant",
+      "bold",
+      "maximalist",
+      "expressive",
+      "colorful"
+    ]
+  },
+  {
+    "id": "max_002",
+    "name": "Rainbow Sequin Dress",
+    "description": "A bold multicolor sequin statement dress. Fearless, joyful maximalism.",
+    "image_url": "photo-1572804013309-59a88b7e92f1",
+    "category": "dress",
+    "price": 145,
+    "style": [
+      "maximalist"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "sequin",
+      "rainbow",
+      "dress",
+      "bold",
+      "colorful",
+      "statement",
+      "vibrant",
+      "maximalist"
+    ]
+  },
+  {
+    "id": "max_003",
+    "name": "Patterned Statement Blouse",
+    "description": "Eye-catching blouse with maximalist all-over graphic print.",
+    "image_url": "https://images.pexels.com/photos/29479538/pexels-photo-29479538.jpeg",
+    "category": "tops",
+    "price": 68,
+    "style": [
+      "maximalist",
+      "boho"
+    ],
+    "gender": [
+      "female",
+      "unisex"
+    ],
+    "tags": [
+      "blouse",
+      "patterned",
+      "maximalist",
+      "bold",
+      "expressive",
+      "colorful"
+    ]
+  },
+  {
+    "id": "max_004",
+    "name": "Chandelier Crystal Earrings",
+    "description": "Bold chandelier earrings with layered gemstone drops. Maximum drama.",
+    "image_url": "https://images.pexels.com/photos/1413420/pexels-photo-1413420.jpeg",
+    "category": "accessories",
+    "price": 45,
+    "style": [
+      "maximalist",
+      "preppy"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "earrings",
+      "chandelier",
+      "crystal",
+      "bold",
+      "statement",
+      "maximalist"
+    ]
+  },
+  {
+    "id": "max_005",
+    "name": "Vibrant Geometric Shirt",
+    "description": "Bold geometric print shirt with maximalist energy. Stand out from the crowd.",
+    "image_url": "photo-1558223933-f14988574341",
+    "category": "tops",
+    "price": 58,
+    "style": [
+      "maximalist"
+    ],
+    "gender": [
+      "male",
+      "unisex"
+    ],
+    "tags": [
+      "geometric",
+      "shirt",
+      "bold",
+      "vibrant",
+      "maximalist",
+      "pattern",
+      "colorful"
+    ]
+  },
+  {
+    "id": "rom_001",
+    "name": "Floral Wrap Dress",
+    "description": "Dreamy floral wrap dress in soft pastel shades. Effortlessly romantic.",
+    "image_url": "https://images.unsplash.com/photo-1469334031218-e382a71b716b",
+    "category": "dress",
+    "price": 72,
+    "style": [
+      "romantic",
+      "boho"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "floral",
+      "wrap",
+      "dress",
+      "romantic",
+      "soft",
+      "feminine",
+      "dreamy",
+      "pastel"
+    ]
+  },
+  {
+    "id": "rom_002",
+    "name": "Silk Slip Dress",
+    "description": "Effortlessly chic silk slip dress in delicate champagne. Modern romantic femininity.",
+    "image_url": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=500&fit=crop&auto=format&q=80",
+    "category": "dress",
+    "price": 98,
+    "style": [
+      "romantic",
+      "minimalist"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "silk",
+      "slip",
+      "dress",
+      "feminine",
+      "delicate",
+      "romantic",
+      "elegant"
+    ]
+  },
+  {
+    "id": "rom_003",
+    "name": "Pearl Statement Earrings",
+    "description": "Lustrous freshwater pearl drop earrings. Romantic delicacy meets modern chic.",
+    "image_url": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338",
+    "category": "accessories",
+    "price": 55,
+    "style": [
+      "romantic",
+      "preppy"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "pearl",
+      "earrings",
+      "delicate",
+      "romantic",
+      "feminine",
+      "elegant"
+    ]
+  },
+  {
+    "id": "rom_004",
+    "name": "Lace Midi Skirt",
+    "description": "Beautiful lace midi skirt with layered floral detail. Romantic and feminine.",
+    "image_url": "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa",
+    "category": "bottoms",
+    "price": 75,
+    "style": [
+      "romantic",
+      "gothic"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "lace",
+      "skirt",
+      "midi",
+      "romantic",
+      "feminine",
+      "floral",
+      "delicate"
+    ]
+  },
+  {
+    "id": "rom_005",
+    "name": "Ruffle Sleeve Blouse",
+    "description": "Feminine ruffle-sleeve blouse in crisp white. Effortless romantic charm.",
+    "image_url": "https://images.unsplash.com/photo-1515248160000-6745cdb1723f?auto=format&fit=crop&q=80",
+    "category": "tops",
+    "price": 48,
+    "style": [
+      "romantic",
+      "preppy"
+    ],
+    "gender": [
+      "female"
+    ],
+    "tags": [
+      "ruffle",
+      "blouse",
+      "feminine",
+      "romantic",
+      "soft",
+      "white",
+      "delicate"
+    ]
+  }
+]

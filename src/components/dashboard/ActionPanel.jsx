@@ -1,27 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RotateCcw, Search, Settings, Share2, Gift } from 'lucide-react';
+import { RotateCcw, Search, Settings, Share2, Gift, Zap } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 import { useUserContext } from '../../context/UserContext';
 
 const ActionPanel = () => {
   const navigate = useNavigate();
-  const { resetQuiz } = useAppContext();
   const { userProfile } = useUserContext();
 
-  const handleRetakeQuiz = () => {
-    resetQuiz();
-    navigate('/quiz');
-  };
-
   const actions = [
-    {
-      label: 'Retake Quiz',
-      icon: RotateCcw,
-      onClick: handleRetakeQuiz,
-      className: 'bg-purple-600 hover:bg-purple-700 text-white',
-      description: 'Update your style profile'
-    },
     {
       label: 'Browse All',
       icon: Search,
@@ -33,50 +20,65 @@ const ActionPanel = () => {
       description: 'See all recommendations'
     },
     {
-      label: 'Settings',
-      icon: Settings,
-      onClick: () => navigate('/profile'),
-      className: 'bg-gray-700 hover:bg-gray-600 text-white',
-      description: 'Customize preferences'
-    },
-    {
-      label: 'Share Profile',
+      label: 'Share Style',
       icon: Share2,
       onClick: () => {
         // Mock share functionality
-        if (userProfile) {
-          const shareText = `I'm a ${userProfile.personalityType}! Check out my StyleGenie profile with a clout score of ${userProfile.cloutScore}!`;
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(shareText + ` ${window.location.origin}`);
-            alert('Share link copied!');
-          } else {
-            alert('Share: ' + shareText);
-          }
+        const shareText = `Check out my style on StyleGenie!`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(shareText + ` ${window.location.origin}`);
+          alert('Share link copied!');
+        } else {
+          alert('Share: ' + shareText);
         }
       },
       className: 'bg-gray-700 hover:bg-gray-600 text-white',
-      description: 'Show off your style DNA'
+      description: 'Show off your fashion vibe'
     }
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Quick Actions */}
-      <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-purple-500/20">
-        <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
-        <div className="space-y-3">
-          {actions.map((action) => {
+      <div className="bg-white rounded-[2.5rem] p-10 border border-brand-gray shadow-xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cream/40 blur-3xl rounded-full"></div>
+        <h3 className="text-xl font-serif font-bold text-brand-dark mb-8 relative z-10">Quick Directives</h3>
+        <div className="space-y-4 relative z-10">
+          {[
+            {
+              label: 'Explore Boutique',
+              icon: Search,
+              onClick: () => navigate('/products'),
+              className: 'bg-brand-dark text-white hover:bg-brand-black shadow-lg',
+              description: 'Access the complete curated gallery'
+            },
+            {
+              label: 'Replicate DNA',
+              icon: Share2,
+              onClick: () => {
+                const shareText = `Explore my StyleGenie DNA!`;
+                if (navigator.clipboard) {
+                  navigator.clipboard.writeText(shareText + ` ${window.location.origin}`);
+                  alert('DNA replication link copied!');
+                }
+              },
+              className: 'bg-white text-brand-sage border border-brand-gray hover:border-brand-pink/30 hover:text-brand-dark',
+              description: 'Share your aesthetic signature'
+            }
+          ].map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.label}
                 onClick={action.onClick}
-                className={`w-full py-3 px-4 rounded-xl transition-all duration-300 flex items-center space-x-3 ${action.className} hover:scale-105`}
+                className={`w-full py-5 px-6 rounded-2xl transition-all duration-500 flex items-center space-x-5 ${action.className} hover:-translate-y-1 hover:shadow-2xl group/btn`}
               >
-                <Icon className="w-5 h-5" />
+                <div className={`p-3 rounded-xl transition-all duration-500 ${action.className.includes('bg-brand-dark') ? 'bg-white/10' : 'bg-brand-cream/50'}`}>
+                  <Icon className={`w-5 h-5 ${action.className.includes('bg-brand-dark') ? 'text-brand-pink' : 'text-brand-sage group-hover/btn:text-brand-pink'}`} />
+                </div>
                 <div className="text-left flex-1">
-                  <div className="font-medium">{action.label}</div>
-                  <div className="text-xs opacity-75">{action.description}</div>
+                  <div className="font-bold text-xs uppercase tracking-[0.2em] mb-1">{action.label}</div>
+                  <div className="text-[10px] opacity-60 font-medium uppercase tracking-widest">{action.description}</div>
                 </div>
               </button>
             );
@@ -85,30 +87,33 @@ const ActionPanel = () => {
       </div>
 
       {/* Daily Challenge */}
-      <div className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-lg rounded-2xl p-6 border border-yellow-500/30">
-        <div className="flex items-center mb-3">
-          <Gift className="w-6 h-6 text-yellow-400 mr-2" />
-          <h3 className="text-lg font-bold text-white">Daily Challenge</h3>
+      <div className="bg-brand-dark rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-brand-pink/10 blur-[60px] rounded-full animate-pulse"></div>
+        <div className="flex items-center gap-5 mb-6 relative z-10">
+          <div className="w-12 h-12 bg-brand-pink/20 rounded-2xl flex items-center justify-center border border-brand-pink/30">
+            <Zap className="w-6 h-6 text-brand-pink" />
+          </div>
+          <h3 className="text-xl font-serif font-bold text-white">Daily Spark</h3>
         </div>
-        <p className="text-gray-300 text-sm mb-4">
-          Try something outside your comfort zone today! Your AI agent found a "guilty pleasure" item that's 76% different from your usual style.
+        <p className="text-white/60 text-sm mb-10 leading-relaxed relative z-10">
+          Transcend your comfort zone today. Our Muse detected a "guilty pleasure" silhouette that's 76% divergent from your typical archive.
         </p>
         <button 
-          onClick={() => {
-            // Mock challenge acceptance
-            alert('Challenge accepted! Check your inbox for a surprise recommendation.');
-          }}
-          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-all text-sm"
+          onClick={() => alert('Ascension initiated! Check your narrative for the surprise.')}
+          className="w-full bg-brand-pink text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-brand-dark transition-all duration-500 relative z-10 shadow-xl"
         >
-          Accept Challenge
+          Embrace Transformation
         </button>
       </div>
 
       {/* Style Tip */}
-      <div className="bg-gradient-to-r from-[#c0a0e6]/20 border border-[#c0a0e6]/20/20 to-[#c0a0e6]/5/20 backdrop-blur-lg rounded-2xl p-6 border border-cyan-500/30">
-        <h4 className="text-white font-bold mb-2 text-sm">💡 Style Tip</h4>
-        <p className="text-gray-300 text-xs">
-          Your aesthetic twin from Tokyo just bought vintage boots. Consider exploring Japanese minimalist brands for your next find!
+      <div className="bg-brand-cream/30 rounded-[2rem] p-8 border border-brand-pink/5 relative overflow-hidden">
+        <h4 className="text-brand-pink font-black text-[10px] mb-4 uppercase tracking-[0.4em] flex items-center gap-3">
+          <div className="w-1.5 h-1.5 bg-brand-pink rounded-full"></div>
+          Atelier Insight
+        </h4>
+        <p className="text-brand-sage text-[11px] font-medium leading-relaxed uppercase tracking-wider opacity-80">
+          Your aesthetic parallel in Tokyo just curated vintage textures. Consider integrating artisanal linen for your next silhouette.
         </p>
       </div>
     </div>

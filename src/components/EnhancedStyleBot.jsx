@@ -646,7 +646,7 @@ const EnhancedStyleBot = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent  rounded-lg"></div>
               </div>
               
-              {/* Visual Try-On Button */}
+              {/* Visual Search Button */}
               <div className="mt-3 relative z-10">
                 <button
                   onClick={() => setShowVisualSearch(true)}

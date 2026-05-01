@@ -27,16 +27,12 @@ import numpy as np
 from PIL import Image
 
 logger = logging.getLogger("stylegenie_visual_search")
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
-# Optional dependency: sentence-transformers (CLIP)
-try:
-    from sentence_transformers import SentenceTransformer, util
-    HAS_ST_MODEL = True
-except Exception:
-    HAS_ST_MODEL = False
-    SentenceTransformer = None
-    util = None
+# Optional dependency: sentence-transformers (CLIP) - DEFERRED to lazy loading
+HAS_ST_MODEL = True # Assume true for checking, will verify on first load
+SentenceTransformer = None
+util = None
 
 # Small utility functions -----------------------------------------------------
 
@@ -103,13 +99,21 @@ class VisualSearch:
         if self.embeddings_path and self.embeddings_path.exists():
             self._load_embeddings(self.embeddings_path)
 
-        # Try load CLIP model if available
-        if HAS_ST_MODEL:
+        # Try load CLIP model - DEFERRED to ensure_model_loaded
+        pass
+
+    def ensure_model_loaded(self):
+        """Lazy-load the CLIP model only when actually used"""
+        global SentenceTransformer, util, HAS_ST_MODEL
+        if HAS_ST_MODEL and self.clip_model is None:
             try:
+                logger.info("Initializing CLIP model (First use lazy-load)...")
+                from sentence_transformers import SentenceTransformer, util
                 self.clip_model = SentenceTransformer(self.clip_model_name)
                 logger.info("Loaded CLIP model: %s", self.clip_model_name)
             except Exception as e:
                 logger.warning("Could not load CLIP model: %s", e)
+                HAS_ST_MODEL = False
                 self.clip_model = None
 
     # Loading helpers -------------------------------------------------------
@@ -165,6 +169,7 @@ class VisualSearch:
     # Core search functions ------------------------------------------------
     def _nearest_by_image_embedding(self, pil_image: Image.Image, top_k: int=5) -> List[Dict[str,Any]]:
         """Use CLIP model (if available) to encode uploaded image and find nearest product images."""
+        self.ensure_model_loaded()
         if self.clip_model is None or self.image_embeddings is None:
             return []
 

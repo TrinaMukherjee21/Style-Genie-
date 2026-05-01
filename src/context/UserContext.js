@@ -22,10 +22,9 @@ const initialUserState = {
   styleHistory: [],
   socialConnections: [],
   privacySettings: {
-    profileVisible: true,
-    showPurchases: false,
     allowRecommendations: true
-  }
+  },
+  studioItems: []
 };
 
 function userReducer(state, action) {
@@ -129,6 +128,21 @@ function userReducer(state, action) {
         ...state,
         socialConnections: state.socialConnections.filter(conn => conn.id !== action.payload)
       };
+    case 'ADD_TO_STUDIO':
+      if (state.studioItems.find(item => item.id === action.payload.id)) return state;
+      return {
+        ...state,
+        studioItems: [...state.studioItems, action.payload]
+      };
+    case 'REMOVE_FROM_STUDIO':
+      return {
+        ...state,
+        studioItems: state.studioItems.filter(item => item.id !== action.payload)
+      };
+    case 'CLEAR_STUDIO':
+      return { ...state, studioItems: [] };
+    case 'SET_STUDIO':
+      return { ...state, studioItems: action.payload };
     case 'LOGOUT_USER':
       return initialUserState;
     default:
@@ -143,6 +157,7 @@ export function UserProvider({ children }) {
   const [storedPreferences, setStoredPreferences] = useLocalStorage('stylegeniePreferences', null);
   const [storedFavorites, setStoredFavorites] = useLocalStorage('stylegenieFavorites', []);
   const [storedCart, setStoredCart] = useLocalStorage('stylegenieCart', []);
+  const [storedStudio, setStoredStudio] = useLocalStorage('stylegenieStudio', []);
 
   // Load user data from localStorage on mount and check session validity (only run once)
   useEffect(() => {
@@ -169,14 +184,9 @@ export function UserProvider({ children }) {
         return;
       }
     } else if (storedUser) {
-      // User data exists but no valid token - clear everything
-      console.log('No valid session token, clearing stored user data');
-      setStoredUser(null);
-      setStoredProfile(null);
-      setStoredPreferences(null);
-      setStoredFavorites([]);
-      setStoredCart([]);
-      return;
+      // User data exists but no valid token - don't clear immediately to prevent redirect loops
+      console.warn('User data present but no valid access token found. Keeping session for now.');
+      dispatch({ type: 'SET_USER', payload: storedUser });
     }
 
     if (storedUser) {
@@ -194,6 +204,9 @@ export function UserProvider({ children }) {
     }
     if (storedCart.length > 0) {
       dispatch({ type: 'SET_CART', payload: storedCart });
+    }
+    if (storedStudio.length > 0) {
+      dispatch({ type: 'SET_STUDIO', payload: storedStudio });
     }
   }, []); // Empty dependency array - only run on mount
 
@@ -221,6 +234,10 @@ export function UserProvider({ children }) {
   useEffect(() => {
     setStoredCart(state.cart);
   }, [state.cart, setStoredCart]);
+
+  useEffect(() => {
+    setStoredStudio(state.studioItems);
+  }, [state.studioItems, setStoredStudio]);
 
   const value = {
     ...state,
@@ -276,6 +293,12 @@ export function UserProvider({ children }) {
     // Social connections actions
     addSocialConnection: (connection) => dispatch({ type: 'ADD_SOCIAL_CONNECTION', payload: connection }),
     removeSocialConnection: (id) => dispatch({ type: 'REMOVE_SOCIAL_CONNECTION', payload: id }),
+    
+    // Studio actions
+    addToStudio: (item) => dispatch({ type: 'ADD_TO_STUDIO', payload: item }),
+    removeFromStudio: (id) => dispatch({ type: 'REMOVE_FROM_STUDIO', payload: id }),
+    clearStudio: () => dispatch({ type: 'CLEAR_STUDIO' }),
+    isInStudio: (id) => state.studioItems.some(item => item.id === id),
     
     // Authentication actions
     logout: () => {
@@ -337,6 +360,122 @@ export function UserProvider({ children }) {
       const fields = ['personalityType', 'aesthetics', 'cloutScore'];
       const completedFields = fields.filter(field => state.userProfile[field]);
       return Math.round((completedFields.length / fields.length) * 100);
+    },
+
+    // Authentication actions moved here for dispatch access
+    login: async (credentials) => {
+      try {
+        const users = JSON.parse(localStorage.getItem('stylegenie_users') || '{}');
+        const user = users[credentials.email];
+
+        if (!user || user.password !== credentials.password) {
+          return { success: false, error: 'Invalid email or password' };
+        }
+
+        user.lastLogin = new Date().toISOString();
+        users[credentials.email] = user;
+        localStorage.setItem('stylegenie_users', JSON.stringify(users));
+
+        const userData = {
+          id: user.id,
+          email: user.email,
+          name: user.firstName || user.username || 'Style Explorer',
+          username: user.username,
+          gender: user.gender || 'prefer-not-to-say',
+          profile: user.profile || {},
+          createdAt: user.createdAt
+        };
+
+        const token = `local_${Date.now()}_${user.id}`;
+        localStorage.setItem('access_token', token);
+        localStorage.setItem('token_timestamp', Date.now().toString());
+        localStorage.setItem('auth_mode', 'local');
+
+        if (user.gender) {
+          localStorage.setItem('user_gender_preference', user.gender);
+        }
+
+        dispatch({ type: 'SET_USER', payload: userData });
+        
+        if (user.profile && Object.keys(user.profile).length > 0) {
+          dispatch({ type: 'SET_USER_PROFILE', payload: user.profile });
+        }
+        
+        if (user.gender) {
+          dispatch({ 
+            type: 'UPDATE_PREFERENCE', 
+            payload: { key: 'gender', value: user.gender } 
+          });
+        }
+        
+        return { success: true, user: userData };
+
+      } catch (error) {
+        console.error('Login error:', error);
+        return { success: false, error: 'Login failed' };
+      }
+    },
+    
+    register: async (userData) => {
+      try {
+        const users = JSON.parse(localStorage.getItem('stylegenie_users') || '{}');
+
+        if (users[userData.email]) {
+          return { success: false, error: 'User already exists' };
+        }
+
+        const newUser = {
+          id: Date.now().toString(),
+          email: userData.email,
+          username: userData.username || userData.email.split('@')[0],
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          password: userData.password,
+          gender: userData.gender || 'prefer-not-to-say',
+          profile: {
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            gender: userData.gender || 'prefer-not-to-say'
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: null
+        };
+
+        users[userData.email] = newUser;
+        localStorage.setItem('stylegenie_users', JSON.stringify(users));
+
+        const userForState = {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.firstName || newUser.username || 'Style Explorer',
+          username: newUser.username,
+          gender: newUser.gender,
+          profile: newUser.profile,
+          createdAt: newUser.createdAt
+        };
+
+        const token = `local_${Date.now()}_${newUser.id}`;
+        localStorage.setItem('access_token', token);
+        localStorage.setItem('token_timestamp', Date.now().toString());
+        localStorage.setItem('auth_mode', 'local');
+
+        localStorage.setItem('user_gender_preference', newUser.gender);
+
+        dispatch({ type: 'SET_USER', payload: userForState });
+        
+        if (newUser.gender) {
+          dispatch({ 
+            type: 'UPDATE_PREFERENCE', 
+            payload: { key: 'gender', value: newUser.gender } 
+          });
+        }
+        
+        return { success: true, user: userForState };
+
+      } catch (error) {
+        console.error('Registration error:', error);
+        return { success: false, error: 'Registration failed' };
+      }
     }
   };
 
@@ -359,117 +498,7 @@ export function useUserContext() {
 
 // Custom hook for user authentication
 export function useAuth() {
-  const { user, setUser, logout, isAuthenticated } = useUserContext();
-  
-  const login = async (credentials) => {
-    // Use local authentication directly
-    try {
-      const users = JSON.parse(localStorage.getItem('stylegenie_users') || '{}');
-      const user = users[credentials.email];
-
-      if (!user || user.password !== credentials.password) {
-        return { success: false, error: 'Invalid email or password' };
-      }
-
-      // Update last login
-      user.lastLogin = new Date().toISOString();
-      users[credentials.email] = user;
-      localStorage.setItem('stylegenie_users', JSON.stringify(users));
-
-      // Set user data
-      const userData = {
-        id: user.id,
-        email: user.email,
-        name: user.firstName || user.username || 'Style Explorer',
-        username: user.username,
-        gender: user.gender || 'prefer-not-to-say',
-        profile: user.profile || {},
-        createdAt: user.createdAt
-      };
-
-      const token = `local_${Date.now()}_${user.id}`;
-      localStorage.setItem('access_token', token);
-      localStorage.setItem('token_timestamp', Date.now().toString());
-      localStorage.setItem('auth_mode', 'local');
-
-      // Save gender preference
-      if (user.gender) {
-        localStorage.setItem('user_gender_preference', user.gender);
-      }
-
-      setUser(userData);
-      
-      // Restore user profile if it exists
-      if (user.profile && Object.keys(user.profile).length > 0) {
-        dispatch({ type: 'SET_USER_PROFILE', payload: user.profile });
-        console.log('Restored user profile from permanent record:', user.profile);
-      }
-      
-      return { success: true, user: userData };
-
-    } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Login failed' };
-    }
-  };
-  
-  const register = async (userData) => {
-    try {
-      const users = JSON.parse(localStorage.getItem('stylegenie_users') || '{}');
-
-      // Check if user exists
-      if (users[userData.email]) {
-        return { success: false, error: 'User already exists' };
-      }
-
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        email: userData.email,
-        username: userData.username || userData.email.split('@')[0],
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        password: userData.password,
-        gender: userData.gender || 'prefer-not-to-say',
-        profile: {
-          firstName: userData.firstName || '',
-          lastName: userData.lastName || '',
-          gender: userData.gender || 'prefer-not-to-say'
-        },
-        createdAt: new Date().toISOString(),
-        lastLogin: null
-      };
-
-      users[userData.email] = newUser;
-      localStorage.setItem('stylegenie_users', JSON.stringify(users));
-
-      // Set user data (without password)
-      const userForState = {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.firstName || newUser.username || 'Style Explorer',
-        username: newUser.username,
-        gender: newUser.gender,
-        profile: newUser.profile,
-        createdAt: newUser.createdAt
-      };
-
-      const token = `local_${Date.now()}_${newUser.id}`;
-      localStorage.setItem('access_token', token);
-      localStorage.setItem('token_timestamp', Date.now().toString());
-      localStorage.setItem('auth_mode', 'local');
-
-      // Save gender preference
-      localStorage.setItem('user_gender_preference', newUser.gender);
-
-      setUser(userForState);
-      return { success: true, user: userForState };
-
-    } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Registration failed' };
-    }
-  };
+  const { user, login, register, logout, isAuthenticated } = useUserContext();
   
   return {
     user,

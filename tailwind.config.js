@@ -8,32 +8,36 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Core Brand Colors (Dark Navy, Gold, Lavender)
+        // Core Brand Colors remapped to "Classic Blush Pink" theme
         brand: {
-          navy: '#120D20',      // Deep dark navy background
-          dark: '#1A162D',      // Slightly lighter card background
-          gold: '#d4af37',      // Primary elegant gold accent
-          goldLight: '#eacc6e',
-          lavender: '#c0a0e6',  // Secondary lilac/lavender accent
-          lavenderDark: '#9b76cc',
+          sage: '#89A293',          // Sage Green
+          gray: '#EEEDEB',          // Warm Gray/Off White
+          pink: '#DCB5BE',          // Primary Blush Pink
+          pinkLight: '#EEDFE3',     // Soft Blush
+          cream: '#F5F4F3',         // Lighter Cream
+          dark: '#1E1A1B',          // Deep Charcoal Plum (Premium Dark)
+          black: '#121212',         // Rich Ebony
         },
         
-        // Dark theme colors mapped to brand
-        'dark-primary': '#120D20',
-        'dark-surface': '#1A162D', 
-        'dark-card': '#221A3B',
-        'dark-border': '#35295D',
-        'dark-hover': '#2D234A',
+        // Light theme palette
+        'light-primary': '#FFFFFF',
+        'light-pink': '#EEDFE3',
+        'light-rose': '#DCB5BE',
+        'light-blush': '#F5F4F3',
+        'light-sage': '#89A293',
+
+        // Compatibility aliases for existing code
+        'dark-primary': '#FFFFFF',
+        'dark-surface': '#F5F4F3',
+        'dark-card': '#FFFFFF',
+        'dark-border': '#EEEDEB',
+        'dark-hover': '#EEDFE3',
+        'dark-secondary': '#F5F4F3',
         
-        // Re-mapped Neon variables to Brand colors to prevent crashes in old components while refactoring
-        'neon-purple': '#c0a0e6',
-        'neon-pink': '#c0a0e6', 
-        'neon-cyan': '#c0a0e6',
-        'neon-green': '#d4af37',
-        'neon-orange': '#d4af37',
-        'neon-yellow': '#d4af37',
-        'neon-blue': '#c0a0e6',
-        'neon-indigo': '#c0a0e6',
+        'neon-purple': '#EEDFE3',
+        'neon-pink': '#DCB5BE', 
+        'neon-cyan': '#EEEDEB',
+        'neon-green': '#89A293',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -1,27 +1,81 @@
-# src/api/app.py
-from flask import Flask, request, jsonify, render_template, send_file
-from flask_cors import CORS
 import sys
 import os
+from pathlib import Path
+
+# Fix for OpenBLAS Memory Allocation Failed on Windows
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['OMP_NUM_THREADS'] = '1'
+
+# Add src and src/api to path BEFORE other internal imports for absolute correctness
+root_dir = Path(__file__).resolve().parent.parent.parent
+src_path = str(root_dir / "src")
+api_path = str(root_dir / "src" / "api")
+
+if src_path not in sys.path: sys.path.append(src_path)
+if api_path not in sys.path: sys.path.append(api_path)
+
+from flask import Flask, request, jsonify, render_template, send_file
+from flask_cors import CORS
+from dotenv import load_dotenv
 import yaml
 import pickle
 import logging
-from dotenv import load_dotenv
+import mimetypes
+import base64
+import uuid
+import shutil
+import requests
+import cv2
 
 # Load environment variables
-load_dotenv()
+env_path = os.path.join(str(root_dir), '.env')
+env_local_path = os.path.join(str(root_dir), '.env.local')
+load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_local_path)
 
-# Add src to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from chatbot.models import SimpleEnhancedStyleGenieRecommender as EnhancedStyleGenieRecommender
+# Internal module imports (must happen AFTER sys.path adjustment)
 try:
     from chatbot.openai_integration import openai_bot
 except ImportError:
     openai_bot = None
 
+try:
+    from chatbot.browser_search import search_products_advanced
+except ImportError:
+    search_products_advanced = None
+
+try:
+    from chatbot.models import SimpleEnhancedStyleGenieRecommender as EnhancedStyleGenieRecommender
+except ImportError:
+    EnhancedStyleGenieRecommender = lambda: None
+
+# Project Paths
+project_root = str(root_dir)
+PUBLIC_FOLDER = os.path.join(project_root, 'public')
+UPLOAD_FOLDER = os.path.join(PUBLIC_FOLDER, 'uploads')
+LOOKBOOK_FOLDER = os.path.join(PUBLIC_FOLDER, 'lookbook')
+LOOKBOOK_DATA_FILE = os.path.join(project_root, 'data', 'lookbook.json')
+
+# Ensure directories exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(LOOKBOOK_FOLDER, exist_ok=True)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 app = Flask(__name__)
-CORS(app)
+# Enable CORS globally with explicit preflight handling
+CORS(app, resources={r"/*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"], "methods": ["GET", "POST", "OPTIONS"]}})
+
+@app.after_request
+def add_security_headers(response):
+    # Fix for ERR_BLOCKED_BY_ORB: Allow cross-origin resources for local dev
+    response.headers.add("Cross-Origin-Resource-Policy", "cross-origin")
+    return response
 
 # Set up logging first
 logging.basicConfig(level=logging.INFO)
@@ -29,11 +83,16 @@ logger = logging.getLogger(__name__)
 
 # Load configuration
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'config', 'config.yaml')
-with open(config_path, 'r') as f:
-    config = yaml.safe_load(f)
+try:
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+except Exception as e:
+    logger.error(f"Critical: Failed to load config at {config_path}: {e}")
+    config = {'model': {'version': '1.0'}, 'api': {'model_path': 'data/models/stylegenie_model.pkl'}}
 
 # Initialize enhanced model with preference learning
-recommender = EnhancedStyleGenieRecommender(config)
+# The recommender expects an optional model_dir path, not a config dict.
+recommender = EnhancedStyleGenieRecommender()
 
 # Log OpenAI availability
 if openai_bot:
@@ -64,26 +123,149 @@ def health_check():
         'api_key_configured': bool(os.getenv('OPENAI_API_KEY'))
     })
 
-@app.route('/api/images/<path:image_path>')
-def serve_image(image_path):
-    """Serve product images"""
-    try:
-        # Clean the path - remove leading slash if present
-        if image_path.startswith('/'):
-            image_path = image_path[1:]
+# Helper to resolve URLs or Base64 to a local valid path
+def resolve_image_to_path(input_str, subfolder='uploads'):
+    if not input_str:
+        return None
         
-        # Build full path from project root
-        full_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),  # Go to project root
-            image_path
-        )
+    try:
+        # Case 1: Base64 Data URI
+        if input_str.startswith('data:image'):
+            temp_filename = f"temp_{uuid.uuid4().hex[:8]}.jpg"
+            save_dir = os.path.join(PUBLIC_FOLDER, subfolder)
+            os.makedirs(save_dir, exist_ok=True)
+            target_path = os.path.join(save_dir, temp_filename)
+            
+            # Split out the base64 part
+            header, encoded = input_str.split(",", 1)
+            with open(target_path, "wb") as f:
+                f.write(base64.b64decode(encoded))
+            return target_path
+            
+        # Case 2: External/Absolute URL
+        if input_str.startswith('http'):
+            # Check if it points to our own API
+            from urllib.parse import urlparse
+            parsed_url = urlparse(input_str)
+            path_parts = parsed_url.path.split('/')
+            
+            if 'api' in path_parts and 'v' in path_parts:
+                idx = path_parts.index('v')
+                rel_url = '/'.join(path_parts[idx+1:])
+                # Clean relative URL prefixes
+                clean_path = rel_url.replace('/api/v/', '').replace('/public/', '').lstrip('/')
+                clean_path = clean_path.replace('/', os.sep)
+                local_path = os.path.join(project_root, 'public', clean_path)
+                if os.path.exists(local_path):
+                    return local_path
+            
+            # If still HTTP, it's external (e.g. Unsplash). Download it.
+            try:
+                temp_filename = f"ext_{uuid.uuid4().hex[:8]}.jpg"
+                save_dir = os.path.join(PUBLIC_FOLDER, subfolder)
+                os.makedirs(save_dir, exist_ok=True)
+                target_path = os.path.join(save_dir, temp_filename)
+                
+                logger.info(f"Downloading external image: {input_str}")
+                response = requests.get(input_str, timeout=10)
+                if response.status_code == 200:
+                    with open(target_path, "wb") as f:
+                        f.write(response.content)
+                    return target_path
+            except Exception as download_err:
+                logger.error(f"Failed to download external image {input_str}: {download_err}")
+                return None
+        
+        # Case 3: Relative local path
+        rel_url = input_str
+        clean_path = rel_url.replace('/api/v/', '').replace('/public/', '').lstrip('/')
+        clean_path = clean_path.replace('/', os.sep)
+        
+        # Build full local path
+        local_path = os.path.join(project_root, 'public', clean_path)
+        
+        # Fallback if the path above didn't include 'public' correctly
+        if not os.path.exists(local_path):
+            local_path = os.path.join(project_root, clean_path)
+            
+        return local_path if os.path.exists(local_path) else None
+        
+    except Exception as e:
+        logger.error(f"Error resolving path for {input_str[:50]}... : {e}")
+        return None
+
+@app.route('/api/catalog', methods=['GET'])
+def get_catalog():
+    """Fallback catalog route for frontend compatibility"""
+    try:
+        # ML_PRODUCTS is the correct name from ml_catalog.py
+        from chatbot.ml_catalog import ML_PRODUCTS
+        return jsonify(ML_PRODUCTS)
+    except Exception as e:
+        logger.error(f"Catalog fetch error: {e}")
+        return jsonify([])
+
+@app.route('/api/lookbook', methods=['GET'])
+def get_lookbook():
+    """Fetch lookbook data from JSON file"""
+    try:
+        if os.path.exists(LOOKBOOK_DATA_FILE):
+            import json
+            with open(LOOKBOOK_DATA_FILE, 'r') as f:
+                data = json.load(f)
+            return jsonify(data if isinstance(data, list) else [])
+        return jsonify([])
+    except Exception as e:
+        logger.error(f"Lookbook fetch error: {e}")
+        return jsonify([])
+
+@app.route('/api/products/search', methods=['POST', 'OPTIONS'])
+def products_search():
+    """Live search endpoint for the products page"""
+    if request.method == 'OPTIONS':
+        return jsonify({'success': True}), 200
+        
+    if not search_products_advanced:
+        return jsonify({'success': False, 'error': 'Search module not loaded'}), 501
+        
+    try:
+        data = request.json
+        search_term = data.get('searchTerm', '')
+        filters = data.get('filters', {})
+        limit = data.get('limit', 24)
+        
+        results = search_products_advanced(search_term, filters=filters, limit=limit)
+        return jsonify({
+            'success': True,
+            'products': results
+        })
+    except Exception as e:
+        logger.error(f"Search error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/v/<path:image_path>')
+def serve_image(image_path):
+    """Serve product and generated images with neutral routing to bypass adblockers"""
+    try:
+        # Clean the path and handle Windows slash variations
+        clean_path = image_path.replace('/', os.sep).replace('\\', os.sep)
+        if clean_path.startswith(os.sep):
+            clean_path = clean_path[1:]
+        
+        full_path = os.path.join(project_root, clean_path)
         
         if os.path.exists(full_path):
-            return send_file(full_path)
-        else:
-            logger.warning(f"Image not found: {full_path}")
-            # Return placeholder or 404
-            return jsonify({'error': 'Image not found'}), 404
+            mimetype, _ = mimetypes.guess_type(full_path)
+            return send_file(full_path, mimetype=mimetype or 'image/jpeg')
+        
+        # Try a direct fallback to public/ path if not specified
+        public_path = os.path.join(project_root, 'public', clean_path)
+        if os.path.exists(public_path):
+            mimetype, _ = mimetypes.guess_type(public_path)
+            return send_file(public_path, mimetype=mimetype or 'image/jpeg')
+            
+        logger.warning(f"Image not found at {full_path} or {public_path}")
+        return jsonify({'error': 'Image not found'}), 404
             
     except Exception as e:
         logger.error(f"Error serving image {image_path}: {e}")
@@ -431,6 +613,8 @@ def get_quiz_recommendations():
             'aestheticStyle': 'minimalist'
         }), 500
 
+
+
 @app.route('/api/model/status', methods=['GET'])
 def model_status():
     """Check if model is trained and ready"""
@@ -454,8 +638,15 @@ def trigger_training():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+
     port = config['api']['port']
     debug = os.getenv('FLASK_ENV') == 'development'
     
-    logger.info(f"Starting Enhanced StyleGenie API with preference learning on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    logger.info("="*60)
+    logger.info(f"✨ STYLEGENIE UNIFIED BACKEND IS STARTING ON PORT {port}")
+    logger.info(f"✨ API BASE: http://localhost:{port}")
+    logger.info(f"✨ ACCESSIBLE VIA: http://127.0.0.1:{port} or 0.0.0.0")
+    logger.info("="*60)
+    
+    # Use host='0.0.0.0' to ensure availability across local network/browser
+    app.run(host='0.0.0.0', port=port, debug=debug, use_reloader=False)

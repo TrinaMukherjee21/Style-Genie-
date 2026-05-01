@@ -127,204 +127,132 @@ const InboxMessageCard = ({ message, onMarkRead, onStar }) => {
 
   return (
     <div
-      className={`card-premium p-6 group animate-card-hover border-2 cursor-pointer ${getPriorityStyle()} ${
-        !message.read ? 'ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20' : 'opacity-80'
-      } ${isClickProcessing ? 'pointer-events-none opacity-60' : 'hover:shadow-xl hover:shadow-purple-500/10'}`}
+      className={`bg-white p-10 rounded-[2.5rem] border border-brand-gray shadow-xl group transition-all duration-700 cursor-pointer relative overflow-hidden ${
+        !message.read ? 'border-brand-pink/30 shadow-brand-pink/5' : 'opacity-90'
+      } ${isClickProcessing ? 'pointer-events-none opacity-60' : 'hover:shadow-2xl hover:-translate-y-1'}`}
       onClick={(e) => handleMarkRead(e)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Dynamic Background Element */}
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 blur-3xl rounded-full transition-all duration-1000 ${isHovered ? 'scale-150' : 'scale-100'}`}></div>
+
       {/* Message Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-3 h-3 bg-green-400 rounded-full  shadow-sm shadow-green-400/20"></div>
-          <span className="text-sm text-gray-300 font-medium flex items-center gap-2">
-            {getMessageIcon()}
-            StyleGenie AI
-          </span>
-          <span className="text-xs text-gray-400 flex items-center gap-1">
+      <div className="flex items-start justify-between mb-8 relative z-10">
+        <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3">
+            <div className={`w-2 h-2 rounded-full ${!message.read ? 'bg-brand-pink animate-pulse' : 'bg-brand-sage opacity-30'}`}></div>
+            <span className="text-[10px] font-black text-brand-dark uppercase tracking-[0.3em]">
+              The Atelier Muse
+            </span>
+          </div>
+          <div className="h-4 w-[1px] bg-brand-gray"></div>
+          <span className="text-[9px] text-brand-sage font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
             <Clock className="w-3 h-3" />
             {getTimestamp()}
           </span>
-          {!message.read && (
-            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-              New
-            </span>
-          )}
           {message.priority === 'high' && (
-            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium ">
-              Urgent
+            <span className="text-[9px] text-brand-pink font-black uppercase tracking-[0.2em] bg-brand-pink/5 px-3 py-1 rounded-full border border-brand-pink/10">
+              Priority
             </span>
           )}
         </div>
         
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleStar}
-            disabled={isProcessing}
-            className={`p-2 rounded-lg transition-all duration-300 ${
-              isProcessing 
-                ? 'opacity-50 cursor-not-allowed' 
-                : 'hover:bg-brand-dark hover:scale-110'
-            }`}
-            title={message.starred ? 'Remove from starred' : 'Add to starred'}
-          >
-            <Star className={`w-4 h-4 transition-all duration-300 ${
-              message.starred
-                ? 'fill-current text-yellow-400 drop-shadow-lg' 
-                : 'text-gray-400 hover:text-yellow-400'
-            } ${isProcessing ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
+        <button
+          onClick={handleStar}
+          disabled={isProcessing}
+          className={`p-3 rounded-xl transition-all duration-500 ${
+            message.starred ? 'bg-brand-pink/10 text-brand-pink' : 'text-brand-sage hover:bg-brand-cream'
+          }`}
+        >
+          <Star className={`w-4 h-4 ${message.starred ? 'fill-current' : ''}`} />
+        </button>
       </div>
 
-      {/* Message Title */}
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-white group-hover:text-brand-gold transition-colors">
+      {/* Message Content Area */}
+      <div className="relative z-10">
+        <h3 className="text-2xl font-serif font-bold text-brand-dark mb-6 group-hover:text-brand-pink transition-colors duration-500">
           {message.title}
         </h3>
-      </div>
 
-      {/* AI Message */}
-      <div className="bg-brand-navy/60 backdrop-blur-md rounded-xl p-4 mb-4 border-l-4 border-purple-500/80 shadow-inner">
-        <p className="text-white font-medium leading-relaxed">
-          {(() => {
-            const content = message.ai_message || message.content;
-            if (typeof content === 'string') {
-              return content;
-            } else if (typeof content === 'object' && content !== null) {
-              return `[Object: ${Object.keys(content).join(', ')}]`;
-            } else {
-              return String(content || 'No message content');
-            }
-          })()}
-        </p>
-      </div>
-
-      {/* Product Info (for recommendation messages) */}
-      {message.message_type === 'recommendation' && message.product_data && (
-        <div className="flex gap-4 mb-4">
-          <div className="relative overflow-hidden rounded-xl group-hover:scale-105 transition-transform duration-300">
-            <img 
-              src={message.product_data.image || getProductImage(message.product_data)}
-              alt={message.product_data.title}
-              className="w-24 h-24 object-cover"
-              loading="lazy"
-              onError={(e) => {
-                e.target.src = getProductImage(message.product_data);
-              }}
-            />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300"></div>
+        {/* AI Insight Box */}
+        <div className="bg-brand-cream/40 rounded-[2rem] p-8 border border-brand-gray/30 mb-8 relative group/insight transition-all duration-500 hover:border-brand-pink/20">
+          <div className="absolute top-6 left-6 text-brand-pink/20">
+            <Sparkles className="w-8 h-8" />
           </div>
-          
-          <div className="flex-1">
-            <h4 className="text-lg font-bold text-white mb-2 group-hover:text-brand-gold transition-colors">
-              {message.product_data.title}
-            </h4>
-            
-            <div className="flex items-baseline space-x-2 mb-3">
-              <span className="text-brand-gold font-bold text-xl">
-                {message.product_data.price}
-              </span>
-              {message.metadata?.compatibility_score && (
-                <span className="text-xs  text-white px-3 py-1 rounded-full font-medium ">
-                  {Math.round(message.metadata.compatibility_score * 100)}% match
-                </span>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1 mb-3">
-              {(message.tags || []).slice(0, 4).map((tag) => (
-                <span 
-                  key={tag}
-                  className="text-xs bg-gradient-to-r from-[#d4af37]/10 to-[#120D20] text-purple-300 px-2 py-1 rounded-full border border-purple-500/30 hover:bg-gradient-to-r hover:from-[#d4af37]/20 border border-[#d4af37]/20 hover:to-[#d4af37]/5 hover:text-white transition-all cursor-pointer"
-                  title={`Filter by ${tag}`}
-                >
-                  #{tag.replace('_', ' ')}
-                </span>
-              ))}
-              {(message.tags || []).length > 4 && (
-                <span className="text-xs text-gray-400 px-2 py-1">
-                  +{(message.tags || []).length - 4} more
-                </span>
-              )}
-            </div>
-          </div>
+          <p className="text-brand-dark font-medium leading-relaxed text-base italic relative z-10 pl-10">
+            {(() => {
+              const content = message.ai_message || message.content;
+              return typeof content === 'string' ? content : String(content || 'Curating your next narrative...');
+            })()}
+          </p>
         </div>
-      )}
 
-      {/* Metadata Display */}
-      {message.metadata && (
-        <div className="mb-4">
-          {message.metadata.aesthetic_match && (
-            <div className="flex items-center text-xs text-gray-400 mb-1">
-              <span>Style Match: </span>
-              <span className="text-brand-gold opacity-50 ml-1 capitalize">{message.metadata.aesthetic_match}</span>
-            </div>
-          )}
-          {message.metadata.recommendation_reason && (
-            <div className="text-xs text-gray-300 italic">
-              "{message.metadata.recommendation_reason}"
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Action Buttons (for product recommendations) */}
-      {message.message_type === 'recommendation' && message.product_data && (
-        <div className="flex space-x-3">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddToCart();
-            }}
-            className="flex-1 font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 border-2 bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 hover:from-[#d4af37]/20 border border-[#d4af37]/20 hover:to-[#d4af37]/5 text-white border-purple-500 hover:shadow-md hover:shadow-purple-500/15 hover:scale-105"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            <span>Add to Cart</span>
-          </button>
-          
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddToFavorites();
-            }}
-            className="px-3 py-3 glass-effect hover:bg-brand-dark rounded-xl transition-all duration-300 border-2 border-purple-500/30 hover:border-purple-500/50"
-          >
-            <Heart className="w-5 h-5 text-gray-400 hover:text-red-400" />
-          </button>
-
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              // Handle sharing
-            }}
-            className="px-3 py-3 glass-effect hover:bg-brand-dark rounded-xl transition-all duration-300 border-2 border-purple-500/30 hover:border-purple-500/50"
-            title="Share this product"
-          >
-            <ExternalLink className="w-5 h-5 text-gray-400 hover:text-brand-gold transition-colors duration-300" />
-          </button>
-        </div>
-      )}
-
-      {/* Collection Preview (for collection messages) */}
-      {message.message_type === 'collection' && message.metadata?.products && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {message.metadata.products.map((product, index) => (
-            <div key={index} className="flex-shrink-0">
+        {/* Product Integration */}
+        {message.message_type === 'recommendation' && message.product_data && (
+          <div className="flex gap-8 items-center p-8 bg-white rounded-[2rem] border border-brand-gray/50 hover:border-brand-pink/30 transition-all duration-500 hover:shadow-xl group/prod">
+            <div className="relative overflow-hidden rounded-2xl w-32 h-32 bg-brand-cream/30">
               <img 
-                src={product.image || getProductImage(product)}
-                alt={product.title}
-                className="w-16 h-16 object-cover rounded-lg"
+                src={message.product_data.image || getProductImage(message.product_data)}
+                alt={message.product_data.title}
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover/prod:scale-110"
+                onError={(e) => { e.target.src = getProductImage(message.product_data); }}
               />
+              <div className="absolute inset-0 bg-brand-dark/5 group-hover/prod:bg-transparent transition-colors duration-500"></div>
             </div>
+            
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-lg font-serif font-bold text-brand-dark group-hover/prod:text-brand-pink transition-colors">
+                  {message.product_data.title}
+                </h4>
+                {message.metadata?.compatibility_score && (
+                  <span className="text-[9px] font-black text-brand-pink uppercase tracking-[0.2em] px-3 py-1 bg-brand-pink/5 rounded-full border border-brand-pink/10">
+                    {Math.round(message.metadata.compatibility_score * 100)}% Match
+                  </span>
+                )}
+              </div>
+              
+              <div className="text-xl font-bold text-brand-dark mb-6">
+                ${message.product_data.price}
+              </div>
+
+              {/* Interaction Row */}
+              <div className="flex gap-3">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
+                  className="bg-brand-dark text-white px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-[0.3em] hover:bg-brand-pink transition-all duration-500 flex items-center gap-3 shadow-lg"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  Acquire
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleAddToFavorites(); }}
+                  className="p-3 bg-brand-cream text-brand-sage rounded-xl hover:text-brand-pink transition-all duration-500 border border-brand-gray"
+                >
+                  <Heart className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Narrative Footer */}
+      <div className="mt-8 pt-8 border-t border-brand-gray/50 flex items-center justify-between relative z-10">
+        <div className="flex gap-2">
+          {(message.tags || []).slice(0, 3).map((tag) => (
+            <span key={tag} className="text-[8px] font-black text-brand-sage uppercase tracking-[0.2em] bg-brand-cream/50 px-3 py-1 rounded-full">
+              #{tag.replace('_', ' ')}
+            </span>
           ))}
-          {message.metadata.item_count > 3 && (
-            <div className="flex-shrink-0 w-16 h-16 bg-brand-dark rounded-lg flex items-center justify-center">
-              <span className="text-xs text-gray-400">+{message.metadata.item_count - 3}</span>
-            </div>
-          )}
         </div>
-      )}
+        {message.metadata?.recommendation_reason && (
+          <div className="text-[9px] text-brand-sage font-bold uppercase tracking-widest opacity-40">
+            {message.metadata.recommendation_reason}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

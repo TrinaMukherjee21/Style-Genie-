@@ -349,6 +349,7 @@ const DashboardPage = () => {
     const safePrimaryAesthetic = String(primaryAesthetic || 'minimalist');
     const safeSecondaryAesthetics = Array.isArray(secondaryAesthetics) ? secondaryAesthetics : [];
     const safeConfidence = typeof confidence === 'number' ? confidence : 0.85;
+    const gender = user?.preferences?.gender || user?.gender || 'female';
     
     // Enhanced aesthetic-specific styling advice with more diversity
     const aestheticAdvice = {
@@ -505,7 +506,7 @@ const DashboardPage = () => {
     const selectedColor = getRandomItem(currentAdvice.colors);
     
     // Generate fresh product recommendations
-    const freshProducts = generateFreshProductRecommendations(safePrimaryAesthetic, safePersonalityType, currentTime);
+    const freshProducts = generateFreshProductRecommendations(safePrimaryAesthetic, safePersonalityType, currentTime, gender);
     
     const messages = [
       {
@@ -620,7 +621,7 @@ const DashboardPage = () => {
     });
 
     // Add trending alerts
-    const trendingItems = generateTrendingAlerts(safePrimaryAesthetic, safePersonalityType, currentTime);
+    const trendingItems = generateTrendingAlerts(safePrimaryAesthetic, safePersonalityType, currentTime, gender);
     trendingItems.forEach((trend, index) => {
       messages.push({
         _id: `trending_${currentTime}_${index}`,
@@ -643,7 +644,7 @@ const DashboardPage = () => {
     });
 
     // Add limited time offers
-    const limitedOffers = generateLimitedTimeOffers(safePrimaryAesthetic, safePersonalityType, currentTime);
+    const limitedOffers = generateLimitedTimeOffers(safePrimaryAesthetic, safePersonalityType, currentTime, gender);
     limitedOffers.forEach((offer, index) => {
       messages.push({
         _id: `limited_offer_${currentTime}_${index}`,
@@ -841,40 +842,40 @@ const DashboardPage = () => {
   };
 
   // Generate fresh product recommendations
-  const generateFreshProductRecommendations = (aesthetic, personality, timestamp) => {
+  const generateFreshProductRecommendations = (aesthetic, personality, timestamp, gender = 'female') => {
     const products = {
-      preppy: [
-        { title: "Classic Navy Blazer", category: "blazers", score: 0.95, reasoning: "Perfect for your polished style", price: "$89", image: "blazer-navy.jpg" },
-        { title: "Cashmere Crew Neck Sweater", category: "knitwear", score: 0.92, reasoning: "Timeless elegance meets comfort", price: "$124", image: "sweater-cashmere.jpg" },
-        { title: "Pleated Tennis Skirt", category: "skirts", score: 0.88, reasoning: "Sporty prep perfection", price: "$65", image: "skirt-pleated.jpg" },
-        { title: "Oxford Button-Down Shirt", category: "shirts", score: 0.94, reasoning: "The ultimate prep staple", price: "$78", image: "shirt-oxford.jpg" },
-        { title: "Pearl Strand Necklace", category: "jewelry", score: 0.90, reasoning: "Classic elegance for any outfit", price: "$156", image: "pearls-classic.jpg" }
-      ],
-      minimalist: [
-        { title: "Structured Wide-Leg Trousers", category: "pants", score: 0.93, reasoning: "Clean lines, maximum impact", price: "$98", image: "trousers-wide.jpg" },
-        { title: "Silk Slip Dress", category: "dresses", score: 0.96, reasoning: "Effortless minimalist elegance", price: "$145", image: "dress-slip.jpg" },
-        { title: "Geometric Statement Earrings", category: "jewelry", score: 0.87, reasoning: "Subtle yet striking", price: "$42", image: "earrings-geometric.jpg" },
-        { title: "Oversized Blazer in Cream", category: "blazers", score: 0.91, reasoning: "Versatile sophistication", price: "$132", image: "blazer-cream.jpg" },
-        { title: "Leather Crossbody Bag", category: "bags", score: 0.89, reasoning: "Functional minimalist luxury", price: "$89", image: "bag-crossbody.jpg" }
-      ],
-      vintage: [
-        { title: "70s High-Waisted Flare Jeans", category: "jeans", score: 0.94, reasoning: "Retro vibes with modern fit", price: "$112", image: "jeans-flare.jpg" },
-        { title: "Vintage Band T-Shirt", category: "tees", score: 0.88, reasoning: "Authentic vintage rock style", price: "$45", image: "tee-band.jpg" },
-        { title: "Corduroy Mini Skirt", category: "skirts", score: 0.91, reasoning: "Perfect 90s revival piece", price: "$67", image: "skirt-corduroy.jpg" },
-        { title: "Round Sunglasses", category: "accessories", score: 0.85, reasoning: "Classic vintage glamour", price: "$58", image: "sunglasses-round.jpg" },
-        { title: "Cropped Denim Jacket", category: "jackets", score: 0.92, reasoning: "Timeless vintage staple", price: "$89", image: "jacket-denim.jpg" }
-      ],
-      streetwear: [
-        { title: "Oversized Graphic Hoodie", category: "hoodies", score: 0.95, reasoning: "Street style essential", price: "$78", image: "hoodie-graphic.jpg" },
-        { title: "Cargo Pants in Olive", category: "pants", score: 0.89, reasoning: "Urban utility meets style", price: "$92", image: "pants-cargo.jpg" },
-        { title: "Platform Sneakers", category: "shoes", score: 0.93, reasoning: "Bold street statement", price: "$134", image: "sneakers-platform.jpg" },
-        { title: "Bucket Hat", category: "hats", score: 0.86, reasoning: "Street-ready accessory", price: "$34", image: "hat-bucket.jpg" },
-        { title: "Crossbody Chest Rig", category: "bags", score: 0.91, reasoning: "Functional street aesthetic", price: "$56", image: "bag-chest.jpg" }
-      ]
+      female: {
+        preppy: [
+          { title: "Classic Navy Blazer", category: "blazers", score: 0.95, reasoning: "Perfect for your polished style", price: "$89", image: "https://images.unsplash.com/photo-1548624149-f7b1509e1331?w=400&h=400&fit=crop" },
+          { title: "Pleated Tennis Skirt", category: "skirts", score: 0.88, reasoning: "Sporty prep perfection", price: "$65", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&h=400&fit=crop" },
+          { title: "Pearl Strand Necklace", category: "jewelry", score: 0.90, reasoning: "Classic elegance for any outfit", price: "$156", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop" }
+        ],
+        minimalist: [
+          { title: "Silk Slip Dress", category: "dresses", score: 0.96, reasoning: "Effortless minimalist elegance", price: "$145", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop" },
+          { title: "Geometric Statement Earrings", category: "jewelry", score: 0.87, reasoning: "Subtle yet striking", price: "$42", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=400&fit=crop" }
+        ],
+        streetwear: [
+          { title: "Platform Sneakers", category: "shoes", score: 0.93, reasoning: "Bold street statement", price: "$134", image: "https://images.unsplash.com/photo-1603808033192-082d6919d3e1?w=400&h=400&fit=crop" }
+        ]
+      },
+      male: {
+        preppy: [
+          { title: "Men's Structured Blazer", category: "blazers", score: 0.95, reasoning: "Classic masculine silhouette", price: "$129", image: "https://images.unsplash.com/photo-1593032465175-481ac7f401a0?w=400&h=400&fit=crop" },
+          { title: "Oxford Cotton Dress Shirt", category: "shirts", score: 0.94, reasoning: "Crisp cotton for business flair", price: "$78", image: "https://images.unsplash.com/photo-1594932224828-b4b059b6f68d?w=400&h=400&fit=crop" }
+        ],
+        minimalist: [
+          { title: "Polished Leather Oxfords", category: "shoes", score: 0.93, reasoning: "Essential formal footwear", price: "$145", image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=400&h=400&fit=crop" },
+          { title: "Minimalist Gold Watch", category: "accessories", score: 0.89, reasoning: "Understated luxury", price: "$159", image: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=400&h=400&fit=crop" }
+        ],
+        streetwear: [
+          { title: "Cargo Pants in Olive", category: "pants", score: 0.89, reasoning: "Urban utility meets style", price: "$92", image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop" }
+        ]
+      }
     };
 
-    const aestheticProducts = products[aesthetic.toLowerCase()] || products.minimalist;
-    return aestheticProducts.slice(0, 3); // Return 3 fresh picks
+    const genderPool = products[gender] || products.female;
+    const aestheticProducts = genderPool[aesthetic.toLowerCase()] || genderPool.minimalist || [];
+    return aestheticProducts.slice(0, 3);
   };
 
   // Generate trending alerts
@@ -1486,7 +1487,7 @@ const DashboardPage = () => {
   // Show dashboard if user should have access
   if (!shouldShowDashboard) {
     return (
-      <div className="min-h-screen bg-brand-navy flex items-center justify-center pt-16">
+      <div className="min-h-screen bg-white flex items-center justify-center pt-24">
         <div className="text-center glass-effect p-12 rounded-3xl border-2 border-purple-500/30 animate-card-hover">
           <h2 className="text-2xl font-bold text-white mb-4 font-heading">Please log in to continue</h2>
           <p className="text-gray-300 font-body">You need to be logged in to access your dashboard.</p>
@@ -1503,32 +1504,32 @@ const DashboardPage = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-brand-navy pt-16 ">
+      <div className="min-h-screen bg-white pt-24">
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header with Navigation Tabs */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-3xl font-bold text-white mb-2 font-heading text-brand-gold ">
-                StyleGenie Dashboard
+                StyleGenie <span className="text-brand-pink italic">Dashboard</span>
               </h2>
-              <p className="text-gray-300 font-body text-lg">Your personalized style recommendations and notifications</p>
+              <p className="text-brand-sage font-bold uppercase tracking-[0.3em] text-[10px] opacity-60">Your personalized style narrative and insights</p>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={generateFreshInboxContent}
                 disabled={isLoadingInbox}
-                className="bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-emerald-600 hover:from-[#d4af37]/20 border border-[#d4af37]/20 hover:to-emerald-500 disabled:opacity-50 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-green-500/20 transform hover:scale-105"
+                className="bg-brand-dark text-white px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-3 shadow-xl hover:bg-brand-pink hover:-translate-y-1"
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-brand-pink" />
                 Fresh Picks
               </button>
               
               <button
                 onClick={fetchInboxMessages}
                 disabled={isLoadingInbox}
-                className="bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 hover:from-[#d4af37]/20 border border-[#d4af37]/20 hover:to-[#d4af37]/5 disabled:opacity-50 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-purple-500/20 transform hover:scale-105"
+                className="bg-white text-brand-sage border border-brand-gray px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-3 shadow-sm hover:bg-brand-dark hover:text-white"
               >
                 <RefreshCw className="w-4 h-4" />
                 Refresh
@@ -1537,33 +1538,33 @@ const DashboardPage = () => {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex space-x-1 bg-brand-dark/50 p-1 rounded-xl border border-purple-500/30">
+          <div className="flex space-x-2 bg-brand-cream/50 p-2 rounded-2xl border border-brand-gray max-w-md">
             <button
               onClick={() => setCurrentView('inbox')}
-              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-3 ${
                 currentView === 'inbox'
-                  ? 'bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 text-white shadow-md'
-                  : 'text-gray-300 hover:text-white hover:bg-brand-dark'
+                  ? 'bg-brand-dark text-white shadow-xl translate-y-[-2px]'
+                  : 'text-brand-sage hover:text-brand-dark hover:bg-white'
               }`}
             >
-              <Inbox className="w-5 h-5" />
+              <Inbox className="w-4 h-4" />
               Inbox
               {inboxStats.unread_messages > 0 && (
-                <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                <span className="bg-brand-pink text-white text-[9px] px-2 py-0.5 rounded-full">
                   {inboxStats.unread_messages}
                 </span>
               )}
             </button>
             <button
               onClick={() => setCurrentView('recommendations')}
-              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-3 ${
                 currentView === 'recommendations'
-                  ? 'bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 text-white shadow-md'
-                  : 'text-gray-300 hover:text-white hover:bg-brand-dark'
+                  ? 'bg-brand-dark text-white shadow-xl translate-y-[-2px]'
+                  : 'text-brand-sage hover:text-brand-dark hover:bg-white'
               }`}
             >
-              <Star className="w-5 h-5" />
-              My Picks
+              <Star className="w-4 h-4" />
+              Picks
             </button>
           </div>
         </div>
@@ -1593,23 +1594,23 @@ const DashboardPage = () => {
                     ))}
                   </div>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {['recommendations', 'trends', 'daily', 'challenges', 'fresh_picks', 'limited_offers'].map((filter) => (
                       <button
                         key={filter}
                         onClick={() => setActiveFilter(filter)}
-                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-300 capitalize ${
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
                           activeFilter === filter
-                            ? 'bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 text-white'
-                            : 'bg-brand-dark/50 text-gray-400 hover:text-white hover:bg-brand-dark/80'
+                            ? 'bg-brand-pink text-white shadow-lg'
+                            : 'bg-brand-cream/50 text-brand-sage hover:bg-brand-gray'
                         }`}
                       >
-                        {filter === 'recommendations' && '✨ Product Finds'}
-                        {filter === 'trends' && '🔥 Trend Alerts'}
-                        {filter === 'daily' && '🌅 Daily Updates'}
-                        {filter === 'challenges' && '🎯 Style Challenges'}
-                        {filter === 'fresh_picks' && '🛍️ Fresh Picks'}
-                        {filter === 'limited_offers' && '⏰ Limited Offers'}
+                        {filter === 'recommendations' && 'Product Finds'}
+                        {filter === 'trends' && 'Trend Alerts'}
+                        {filter === 'daily' && 'Daily Updates'}
+                        {filter === 'challenges' && 'Style Challenges'}
+                        {filter === 'fresh_picks' && 'Fresh Picks'}
+                        {filter === 'limited_offers' && 'Limited Offers'}
                       </button>
                     ))}
                   </div>
@@ -1658,7 +1659,7 @@ const DashboardPage = () => {
                           // Make individual server calls but don't update state again
                           unreadMessages.forEach(async (msg) => {
                             try {
-                              await fetch(`http://localhost:5000/api/inbox/${msg._id}/read`, {
+                              await fetch(`http://127.0.0.1:5000/api/inbox/${msg._id}/read`, {
                                 method: 'POST',
                                 headers: {
                                   'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -1761,25 +1762,26 @@ const DashboardPage = () => {
           </div>
 
           {/* Stats Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Inbox Stats */}
-            <div className="card-premium rounded-xl p-6 border-2 border-purple-500/30">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Inbox className="w-5 h-5 text-brand-gold opacity-50" />
-                Inbox Stats
+            <div className="bg-brand-dark rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/10 blur-3xl rounded-full transition-all duration-1000 group-hover:scale-150"></div>
+              <h3 className="text-xl font-serif font-bold text-white mb-8 flex items-center gap-4 relative z-10">
+                <Inbox className="w-6 h-6 text-brand-pink" />
+                Archive Stats
               </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Total Messages</span>
-                  <span className="text-white font-semibold">{inboxStats.total_messages || 0}</span>
+              <div className="space-y-5 relative z-10">
+                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total Volume</span>
+                  <span className="text-white font-bold">{inboxStats.total_messages || 0}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Unread</span>
-                  <span className="text-red-400 font-semibold">{inboxStats.unread_messages || 0}</span>
+                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Unread Insights</span>
+                  <span className="text-brand-pink font-bold">{inboxStats.unread_messages || 0}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Starred</span>
-                  <span className="text-yellow-400 font-semibold">{inboxStats.starred_messages || 0}</span>
+                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Starred Gems</span>
+                  <span className="text-brand-pink font-bold">{inboxStats.starred_messages || 0}</span>
                 </div>
               </div>
             </div>

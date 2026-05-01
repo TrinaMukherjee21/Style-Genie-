@@ -6,11 +6,6 @@ const AppContext = createContext();
 
 const initialState = {
   currentPage: 'home',
-  quizProgress: 0,
-  currentQuizItem: 0,
-  quizAnswers: [],
-  quizCompleted: false,
-  quizCompletedAt: null,
   recommendations: [],
   isLoading: false,
   error: null,
@@ -21,30 +16,6 @@ function appReducer(state, action) {
   switch (action.type) {
     case 'SET_CURRENT_PAGE':
       return { ...state, currentPage: action.payload };
-    case 'SET_QUIZ_PROGRESS':
-      return { ...state, quizProgress: action.payload };
-    case 'SET_CURRENT_QUIZ_ITEM':
-      return { ...state, currentQuizItem: action.payload };
-    case 'ADD_QUIZ_ANSWER':
-      return { 
-        ...state, 
-        quizAnswers: [...state.quizAnswers, action.payload] 
-      };
-    case 'RESET_QUIZ':
-      return { 
-        ...state, 
-        quizProgress: 0, 
-        currentQuizItem: 0, 
-        quizAnswers: [],
-        quizCompleted: false,
-        quizCompletedAt: null
-      };
-    case 'COMPLETE_QUIZ':
-      return { 
-        ...state, 
-        quizCompleted: true,
-        quizCompletedAt: action.payload || new Date().toISOString()
-      };
     case 'SET_RECOMMENDATIONS':
       return { ...state, recommendations: action.payload };
     case 'ADD_RECOMMENDATION':
@@ -88,18 +59,11 @@ function appReducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [storedRecommendations, setStoredRecommendations] = useLocalStorage('stylegenieRecommendations', []);
-  const [storedQuizData, setStoredQuizData] = useLocalStorage('stylegenieQuizState', {});
-
   // Initialize from localStorage only once on mount
   useEffect(() => {
     // Load recommendations
     if (storedRecommendations.length > 0) {
       dispatch({ type: 'SET_RECOMMENDATIONS', payload: storedRecommendations });
-    }
-    
-    // Load quiz state
-    if (storedQuizData.quizCompleted) {
-      dispatch({ type: 'COMPLETE_QUIZ', payload: storedQuizData.quizCompletedAt });
     }
   }, []); // Run only once on mount
 
@@ -109,13 +73,6 @@ export function AppProvider({ children }) {
     
     // Page navigation actions
     setCurrentPage: (page) => dispatch({ type: 'SET_CURRENT_PAGE', payload: page }),
-    
-    // Quiz actions
-    setQuizProgress: (progress) => dispatch({ type: 'SET_QUIZ_PROGRESS', payload: progress }),
-    setCurrentQuizItem: (item) => dispatch({ type: 'SET_CURRENT_QUIZ_ITEM', payload: item }),
-    addQuizAnswer: (answer) => dispatch({ type: 'ADD_QUIZ_ANSWER', payload: answer }),
-    resetQuiz: () => dispatch({ type: 'RESET_QUIZ' }),
-    completeQuiz: (timestamp) => dispatch({ type: 'COMPLETE_QUIZ', payload: timestamp }),
     
     // Recommendations actions
     setRecommendations: (recs) => dispatch({ type: 'SET_RECOMMENDATIONS', payload: recs }),

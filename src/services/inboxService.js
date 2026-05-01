@@ -9,45 +9,82 @@ class InboxService {
     this.messageId = 1;
     this.listeners = [];
     this.isInitialized = false;
+    this.apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
   }
 
-  initialize(userProfile) {
+  async initialize(userProfile) {
     if (this.isInitialized) return;
     
+    console.log('InboxService: Initializing Live style alerts for:', userProfile?.personalityType);
     this.userProfile = userProfile;
-    this.generateInitialMessages();
+    
+    // Initial fetch to populate welcome messages with real data
+    await this.generateInitialMessages();
     this.startPeriodicUpdates();
     this.isInitialized = true;
   }
 
-  generateInitialMessages() {
+  async generateInitialMessages() {
     const now = Date.now();
+    
+    // Fetch live data for "Welcome" and "New Arrivals"
+    // Use searchKeywords from profile if available, else fallback
+    const discoveryKeywords = this.userProfile?.searchKeywords || 
+                             `${this.userProfile?.gender || 'unisex'} fashion trend`;
+    
+    let liveProducts = [];
+    try {
+      const response = await fetch(`${this.apiBase}/api/recommendations/live-search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userProfile: this.userProfile,
+          limit: 10 
+        })
+      });
+      const data = await response.json();
+      if (data.success) liveProducts = data.products;
+    } catch (e) {
+      console.error('InboxService: Live discovery failed, using curated fallbacks', e);
+    }
+
     const messages = [
       this.createMessage(
-        "🎉 Welcome to StyleGenie!",
-        "Your personal fashion journey starts here! I've curated some amazing pieces based on your style preferences.",
-        now - (2 * 60 * 60 * 1000), // 2 hours ago
+        "✨ Your Curated Welcome",
+        `Welcome to StyleGenie! I've analyzed your ${this.userProfile?.personalityType || 'style'} and found these matches.`,
+        now - (120 * 60 * 1000),
         'welcome',
-        this.getWelcomeProducts()
+        this.mapLiveToInbox(liveProducts.slice(0, 2))
       ),
       this.createMessage(
-        "✨ New Arrivals Alert!",
-        "Fresh styles just dropped that match your aesthetic perfectly. Check out these trending pieces!",
-        now - (45 * 60 * 1000), // 45 minutes ago
+        "🔥 Live Trend Alert",
+        "Found some trending pieces from online fashion stores that match your aesthetic perfectly.",
+        now - (45 * 60 * 1000),
         'new_arrivals',
-        this.getNewArrivalProducts()
+        this.mapLiveToInbox(liveProducts.slice(3, 5))
       ),
       this.createMessage(
-        "💫 Style Inspiration",
-        "Based on your recent activity, I found some pieces that would look amazing together!",
-        now - (20 * 60 * 1000), // 20 minutes ago
-        'inspiration',
-        this.getInspiredProducts()
+        "💎 Exclusive Just for You",
+        "Based on your recent activity, check out these hand-picked discovery items.",
+        now - (20 * 60 * 1000),
+        'personalized',
+        this.mapLiveToInbox(liveProducts.slice(6, 8))
       )
     ];
 
     this.messages = messages;
     this.notifyListeners();
+  }
+
+  mapLiveToInbox(products) {
+    if (!products) return [];
+    return products.map(p => ({
+      id: p.id || Math.random().toString(36).substr(2, 9),
+      title: p.name,
+      price: p.price ? p.price.replace(/[^0-9.]/g, '') : '89',
+      originalPrice: p.price ? (parseFloat(p.price.replace(/[^0-9.]/g, '')) * 1.2).toFixed(0) : '109',
+      image: p.image_url
+    }));
   }
 
   createMessage(title, content, timestamp, type, products = []) {
@@ -63,220 +100,83 @@ class InboxService {
     };
   }
 
-  getWelcomeProducts() {
-    return [
-      {
-        id: 'welcome_1',
-        title: 'Elegant Midi Dress',
-        price: 89,
-        image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&h=400&fit=crop'
-      },
-      {
-        id: 'welcome_2',
-        title: 'Classic Blazer',
-        price: 125,
-        image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=400&fit=crop'
-      }
-    ];
-  }
-
-  getNewArrivalProducts() {
-    return [
-      {
-        id: 'new_1',
-        title: 'Trendy Knit Sweater',
-        price: 75,
-        image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop'
-      },
-      {
-        id: 'new_2',
-        title: 'Designer Handbag',
-        price: 185,
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=400&fit=crop'
-      }
-    ];
-  }
-
-  getInspiredProducts() {
-    return [
-      {
-        id: 'inspired_1',
-        title: 'Floral Print Dress',
-        price: 95,
-        image: 'https://images.unsplash.com/photo-1566479179817-c0b2b2b2b2b2?w=300&h=400&fit=crop'
-      }
-    ];
-  }
-
-  generateDynamicMessage() {
+  async generateDynamicMessage() {
     const now = Date.now();
-    const messageTypes = [
-      {
-        type: 'flash_sale',
-        title: '🔥 Flash Sale Alert!',
-        content: 'Limited time offer on your favorite styles! Up to 50% off selected items.',
-        products: this.getSaleProducts()
-      },
-      {
-        type: 'trend_alert',
-        title: '📈 Trending Now',
-        content: 'These styles are flying off the shelves! Get them before they\'re gone.',
-        products: this.getTrendingProducts()
-      },
-      {
-        type: 'personalized',
-        title: '💎 Just for You',
-        content: 'I found some pieces that match your recent searches perfectly!',
-        products: this.getPersonalizedProducts()
-      },
-      {
-        type: 'seasonal',
-        title: '🍂 Seasonal Update',
-        content: 'New season, new style! Check out these perfect pieces for the current weather.',
-        products: this.getSeasonalProducts()
-      },
-      {
-        type: 'restock',
-        title: '🔄 Back in Stock',
-        content: 'Good news! Items from your wishlist are available again.',
-        products: this.getRestockProducts()
-      }
+    
+    // For periodic updates, we'll hit the discovery engine again with random traits
+    const trait = this.userProfile?.traits?.[0] || 'fashion';
+    const query = `${this.userProfile?.gender || 'unisex'} ${trait} clothes`;
+    
+    let liveProducts = [];
+    try {
+      const response = await fetch(`${this.apiBase}/api/products/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          searchTerm: query,
+          limit: 2
+        })
+      });
+      const data = await response.json();
+      if (data.success) liveProducts = data.products;
+    } catch (e) {
+      console.error('InboxService: Dynamic update failed');
+    }
+
+    const typeMap = [
+      { type: 'trend_alert', title: '📈 Trending Now', content: 'These styles are flying off the shelves!' },
+      { type: 'personalized', title: '💖 Just for You', content: 'I found some pieces that match your searches.' },
+      { type: 'restock', title: '🔄 Back in Stock', content: 'Good news! A previously seen item is available.' }
     ];
 
-    const randomType = messageTypes[Math.floor(Math.random() * messageTypes.length)];
+    const randomType = typeMap[Math.floor(Math.random() * typeMap.length)];
     const newMessage = this.createMessage(
       randomType.title,
       randomType.content,
       now,
       randomType.type,
-      randomType.products
+      this.mapLiveToInbox(liveProducts)
     );
 
     this.messages.unshift(newMessage);
-    
-    // Keep only last 20 messages
-    if (this.messages.length > 20) {
-      this.messages = this.messages.slice(0, 20);
-    }
+    if (this.messages.length > 20) this.messages = this.messages.slice(0, 20);
 
     this.notifyListeners();
     return newMessage;
   }
 
-  getSaleProducts() {
-    const saleItems = [
-      { id: 'sale_1', title: 'Designer Coat', price: 199, originalPrice: 299, image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=300&h=400&fit=crop' },
-      { id: 'sale_2', title: 'Silk Blouse', price: 65, originalPrice: 95, image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=300&h=400&fit=crop' }
-    ];
-    return saleItems;
-  }
-
-  getTrendingProducts() {
-    return [
-      { id: 'trend_1', title: 'Oversized Blazer', price: 145, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=400&fit=crop' },
-      { id: 'trend_2', title: 'Wide-Leg Trousers', price: 89, image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=400&fit=crop' }
-    ];
-  }
-
-  getPersonalizedProducts() {
-    return [
-      { id: 'personal_1', title: 'Cashmere Sweater', price: 165, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop' }
-    ];
-  }
-
-  getSeasonalProducts() {
-    const season = this.getCurrentSeason();
-    const seasonalItems = {
-      winter: [
-        { id: 'winter_1', title: 'Wool Coat', price: 225, image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=300&h=400&fit=crop' },
-        { id: 'winter_2', title: 'Knee-High Boots', price: 155, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=400&fit=crop' }
-      ],
-      spring: [
-        { id: 'spring_1', title: 'Floral Dress', price: 85, image: 'https://images.unsplash.com/photo-1566479179817-c0b2b2b2b2b2?w=300&h=400&fit=crop' }
-      ],
-      summer: [
-        { id: 'summer_1', title: 'Linen Shirt', price: 65, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=400&fit=crop' }
-      ],
-      fall: [
-        { id: 'fall_1', title: 'Cardigan', price: 95, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop' }
-      ]
-    };
-    return seasonalItems[season] || seasonalItems.winter;
-  }
-
-  getRestockProducts() {
-    return [
-      { id: 'restock_1', title: 'Popular Jeans', price: 79, image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=400&fit=crop' }
-    ];
-  }
-
-  getCurrentSeason() {
-    const month = new Date().getMonth();
-    if (month >= 2 && month <= 4) return 'spring';
-    if (month >= 5 && month <= 7) return 'summer';
-    if (month >= 8 && month <= 10) return 'fall';
-    return 'winter';
-  }
-
   startPeriodicUpdates() {
-    // Generate new message every 2-5 minutes
+    // Generate new message every 5-10 minutes (realistically)
     const generateMessage = () => {
-      const delay = Math.random() * (5 - 2) + 2; // 2-5 minutes
+      const delay = Math.random() * (10 - 5) + 5; 
       setTimeout(() => {
         this.generateDynamicMessage();
-        generateMessage(); // Schedule next message
+        generateMessage(); 
       }, delay * 60 * 1000);
     };
-
     generateMessage();
   }
 
-  getMessages() {
-    return [...this.messages].sort((a, b) => b.timestamp - a.timestamp);
-  }
-
-  getUnreadCount() {
-    return this.messages.filter(msg => !msg.read).length;
-  }
+  getMessages() { return [...this.messages].sort((a, b) => b.timestamp - a.timestamp); }
+  getUnreadCount() { return this.messages.filter(msg => !msg.read).length; }
 
   markAsRead(messageId) {
     const message = this.messages.find(msg => msg.id === messageId);
-    if (message) {
-      message.read = true;
-      this.notifyListeners();
-    }
+    if (message) { message.read = true; this.notifyListeners(); }
   }
 
-  markAllAsRead() {
-    this.messages.forEach(msg => msg.read = true);
-    this.notifyListeners();
-  }
-
-  deleteMessage(messageId) {
-    this.messages = this.messages.filter(msg => msg.id !== messageId);
-    this.notifyListeners();
-  }
-
-  addListener(callback) {
-    this.listeners.push(callback);
-  }
-
-  removeListener(callback) {
-    this.listeners = this.listeners.filter(listener => listener !== callback);
-  }
-
-  notifyListeners() {
-    this.listeners.forEach(callback => callback(this.getMessages(), this.getUnreadCount()));
-  }
+  markAllAsRead() { this.messages.forEach(msg => msg.read = true); this.notifyListeners(); }
+  deleteMessage(messageId) { this.messages = this.messages.filter(msg => msg.id !== messageId); this.notifyListeners(); }
+  addListener(callback) { this.listeners.push(callback); }
+  removeListener(callback) { this.listeners = this.listeners.filter(listener => listener !== callback); }
+  notifyListeners() { this.listeners.forEach(callback => callback(this.getMessages(), this.getUnreadCount())); }
 
   formatTimeAgo(timestamp) {
     const now = Date.now();
     const diff = now - timestamp;
-    
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
     if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;

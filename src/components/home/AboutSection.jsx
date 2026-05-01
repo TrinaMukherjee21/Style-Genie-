@@ -1,178 +1,130 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, Sparkles, Target, Zap, Shield, Users, TrendingUp, Heart, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+
+const categories = [
+  {
+    name: 'Tops',
+    label: 'Shirts, Tees & Blouses',
+    filter: 'tops',
+    image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=500&q=80',
+    color: 'from-rose-50 to-pink-50'
+  },
+  {
+    name: 'Dresses',
+    label: 'All Lengths & Styles',
+    filter: 'dresses',
+    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=500&q=80',
+    color: 'from-fuchsia-50 to-pink-50'
+  },
+  {
+    name: 'Bottoms',
+    label: 'Trousers, Jeans & Skirts',
+    filter: 'bottoms',
+    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=500&q=80',
+    color: 'from-amber-50 to-orange-50'
+  },
+  {
+    name: 'Outerwear',
+    label: 'Jackets, Coats & Blazers',
+    filter: 'outerwear',
+    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=500&q=80',
+    color: 'from-slate-50 to-zinc-50'
+  },
+  {
+    name: 'Shoes',
+    label: 'Heels, Sneakers & Flats',
+    filter: 'shoes',
+    image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=500&q=80',
+    color: 'from-sky-50 to-blue-50'
+  },
+  {
+    name: 'Accessories',
+    label: 'Bags, Jewellery & More',
+    filter: 'accessories',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=500&q=80',
+    color: 'from-violet-50 to-purple-50'
+  },
+];
 
 const AboutSection = () => {
   const navigate = useNavigate();
 
-  const features = [
-    {
-      icon: Brain,
-      title: "AI-Powered Style Analysis",
-      description: "Our advanced AI analyzes your preferences through rapid-fire visual choices to understand your unique aesthetic DNA.",
-      color: "text-brand-gold"
-    },
-    {
-      icon: Target,
-      title: "Personalized Recommendations",
-      description: "Get curated fashion finds that match your style profile with scary accuracy - no more endless scrolling.",
-      color: "text-brand-goldLight"
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast Results",
-      description: "Take our 60-second quiz and instantly discover your style personality with detailed insights.",
-      color: "text-brand-goldLight"
-    },
-    {
-      icon: Heart,
-      title: "Save Your Favorites",
-      description: "Build your dream wardrobe by saving items you love. Track trends and create your perfect style mood board.",
-      color: "text-brand-gold"
-    }
-  ];
-
-  const stats = [
-    { number: "10K+", label: "Happy Users", icon: Users, color: "text-brand-gold" },
-    { number: "94%", label: "Accuracy Rate", icon: Target, color: "text-brand-goldLight" },
-    { number: "2.3M", label: "Items Analyzed", icon: TrendingUp, color: "text-brand-gold" },
-    { number: "100%", label: "Privacy Protected", icon: Shield, color: "text-brand-gold" }
-  ];
+  const handleCategoryClick = (filter) => {
+    navigate(`/products?category=${filter}`);
+  };
 
   return (
-    <div className="py-20 bg-dark-secondary">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* About Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-heading font-bold mb-6">
-            <span className="text-white">About</span>
-            <span className="text-brand-goldLight ml-4 ">StyleGenie</span>
-          </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto font-body leading-relaxed">
-            StyleGenie is your personal AI fashion assistant that understands your unique style better than you do. 
-            We use cutting-edge technology to decode your aesthetic preferences and deliver personalized recommendations 
-            that feel like they were handpicked just for you.
-          </p>
-        </div>
-
-        {/* Mission Statement */}
-        <div className="feature-highlight rounded-3xl p-12 mb-16 text-center">
-          <Sparkles className="w-16 h-16 text-brand-gold mx-auto mb-6 " />
-          <h3 className="text-3xl font-heading font-bold text-white mb-4">Our Mission</h3>
-          <p className="text-lg text-gray-300 max-w-4xl mx-auto font-body leading-relaxed">
-            To revolutionize how people discover fashion by making style personal, accessible, and fun. 
-            We believe everyone deserves to feel confident in their choices, and our AI helps you find 
-            pieces that truly reflect who you are - not what magazines say you should wear.
-          </p>
-        </div>
-
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <div 
-                key={index}
-                className="card-premium p-8 transition-all duration-300 animate-card-hover"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className={`${feature.color} p-3 rounded-xl bg-brand-dark `}>
-                    <Icon className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-heading font-bold text-white mb-3">
-                      {feature.title}
-                    </h4>
-                    <p className="text-gray-300 font-body leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Stats Section */}
-        <div className="feature-highlight rounded-3xl p-12 shadow-lg mb-16">
-          <h3 className="text-3xl font-heading font-bold text-center text-white mb-8">
-            Trusted by Style Enthusiasts Everywhere
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="text-center">
-                  <Icon className={`w-10 h-10 ${stat.color} mx-auto mb-3 `} />
-                  <div className={`text-3xl font-heading font-bold ${stat.color} mb-1`}>
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-300 font-body font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              );
-            })}
+    <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-1/2 left-0 w-96 h-96 bg-brand-pink/5 blur-[100px] rounded-full -translate-x-1/2"></div>
+      
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 relative">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
+          <div className="w-full md:w-auto">
+            <div className="flex items-center gap-3 mb-4">
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-[0.3em]">Curated Collections</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-pink/30"></div>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-brand-dark tracking-tight leading-tight">
+              Browse by <span className="text-brand-pink italic">Category</span>
+            </h2>
           </div>
-        </div>
-
-        {/* How It Works */}
-        <div className="text-center mb-16">
-          <h3 className="text-3xl font-heading font-bold text-white mb-8">
-            How StyleGenie Works
-          </h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="card-premium p-8 animate-card-hover">
-              <div className="w-16 h-16  rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl ">
-                1
-              </div>
-              <h4 className="text-xl font-heading font-bold text-white mb-3">Sign Up & Take Quiz</h4>
-              <p className="text-gray-300 font-body">
-                Create your account and take our fun 60-second style quiz to build your unique aesthetic profile.
-              </p>
-            </div>
-            
-            <div className="card-premium p-8 animate-card-hover">
-              <div className="w-16 h-16  rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl ">
-                2
-              </div>
-              <h4 className="text-xl font-heading font-bold text-white mb-3">Get Personalized Recommendations</h4>
-              <p className="text-gray-300 font-body">
-                Our AI analyzes your preferences and curates fashion items that match your unique style DNA.
-              </p>
-            </div>
-            
-            <div className="card-premium p-8 animate-card-hover">
-              <div className="w-16 h-16  rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl ">
-                3
-              </div>
-              <h4 className="text-xl font-heading font-bold text-white mb-3">Save & Shop with Confidence</h4>
-              <p className="text-gray-300 font-body">
-                Save your favorites, build your dream wardrobe, and shop knowing every piece fits your style.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="text-center feature-highlight rounded-3xl p-12">
-          <Star className="w-16 h-16 text-brand-gold mx-auto mb-6 " />
-          <h3 className="text-3xl font-heading font-bold text-white mb-4">
-            Ready to Discover Your Style?
-          </h3>
-          <p className="text-lg text-gray-300 mb-8 font-body">
-            Join thousands of users who've already found their perfect style with StyleGenie
-          </p>
-          <button 
-            onClick={() => navigate('/register')}
-            className="btn-primary px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 mx-auto"
+          <button
+            onClick={() => navigate('/products')}
+            className="hidden sm:flex items-center gap-4 text-xs font-bold text-brand-sage uppercase tracking-[0.2em] hover:text-brand-pink transition-all group py-2 border-b-2 border-brand-gray/50 hover:border-brand-pink"
           >
-            <Sparkles className="w-6 h-6" />
-            Start Your Style Journey
+            Explore All Collections
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+          </button>
+        </div>
+
+        {/* Category Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 md:gap-8">
+          {categories.map((cat) => (
+            <button
+              key={cat.filter}
+              onClick={() => handleCategoryClick(cat.filter)}
+              className="group relative overflow-hidden rounded-[3rem] aspect-[3/4.5] border border-brand-gray shadow-[0_15px_40px_rgba(137,162,147,0.06)] hover:border-brand-pink/30 transition-all duration-700 hover:-translate-y-3"
+            >
+              {/* Background Image */}
+              <img
+                src={cat.image}
+                alt={cat.name}
+                className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+              />
+              {/* Premium Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/90 via-brand-dark/20 to-transparent opacity-70 group-hover:opacity-85 transition-opacity duration-500" />
+
+              {/* Label */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-left z-10">
+                <p className="text-white font-serif font-bold text-xl md:text-2xl leading-tight mb-2">{cat.name}</p>
+                <p className="text-white/60 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">{cat.label}</p>
+              </div>
+
+              {/* Hover highlight line */}
+              <div className="absolute bottom-0 left-0 h-1.5 bg-brand-pink w-0 group-hover:w-full transition-all duration-700"></div>
+
+              {/* Hover arrow */}
+              <div className="absolute top-6 right-6 w-11 h-11 bg-white/95 backdrop-blur-md rounded-full flex items-center justify-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 shadow-2xl">
+                <ArrowRight className="w-5 h-5 text-brand-pink" />
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Mobile View All */}
+        <div className="sm:hidden text-center mt-16">
+          <button
+            onClick={() => navigate('/products')}
+            className="w-full text-xs font-bold text-brand-dark bg-brand-cream border border-brand-pink/20 px-10 py-5 rounded-2xl hover:bg-brand-pink hover:text-white transition-all duration-500 uppercase tracking-[0.2em] shadow-lg"
+          >
+            Discover All Categories
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

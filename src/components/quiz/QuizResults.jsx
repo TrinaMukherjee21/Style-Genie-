@@ -7,6 +7,7 @@ import { useQuiz } from '../../hooks/useQuiz';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { getProductImage } from '../../utils/imageUtils';
 import API_BASE_URL from '../../config';
+import catalogData from '../../chatbot/curated_products.json';
 
 const QuizResults = () => {
   const navigate = useNavigate();
@@ -17,823 +18,402 @@ const QuizResults = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
-  // Debug logging
-  console.log('=== QUIZ RESULTS COMPONENT ===');
-  console.log('QuizResults: userProfile keys:', userProfile ? Object.keys(userProfile) : 'null');
-  console.log('PersonalityType:', String(userProfile?.personalityType || 'none'));
-  console.log('TasteProfile:', String(userProfile?.tasteProfile || 'none'));
-  console.log('Aesthetics keys:', userProfile?.aesthetics ? Object.keys(userProfile.aesthetics) : 'none');
-  console.log('Primary Aesthetic:', String(userProfile?.primaryAesthetic || 'none'));
-  
-  useEffect(() => {
-    console.log('QuizResults mounted, userProfile keys:', userProfile ? Object.keys(userProfile) : 'null');
-    if (!userProfile?.personalityType || userProfile.personalityType === 'Style Enthusiast') {
-      console.error('PROBLEM: Still showing fallback personality type!');
-    }
-  }, [userProfile]);
-
-  const generateFallbackRecommendations = () => {
-    const primaryStyle = userProfile.primaryAesthetic || userProfile.aesthetics ?
-      Object.keys(userProfile.aesthetics).sort((a, b) => userProfile.aesthetics[b] - userProfile.aesthetics[a])[0] :
-      'minimalist';
-
-    const personalityType = userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast";
-
-    // Get secondary aesthetic for variety
-    const secondaryStyle = userProfile.secondaryAesthetics?.[0] ||
-      Object.keys(userProfile.aesthetics || {}).sort((a, b) => userProfile.aesthetics[b] - userProfile.aesthetics[a])[1] ||
-      'vintage';
-
-    // Get user's gender preference
-    const userGender = localStorage.getItem('user_gender_preference') || 'unisex';
-
-    // PERFECT PRODUCT DATABASE with verified image matching
-    const productTemplates = {
-      minimalist: [
-        // UNISEX ITEMS
-        {
-          title: 'Essential White Cotton Tee',
-          description: 'Premium minimalist t-shirt in pure white cotton',
-          image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$42',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Structured Modern Blazer',
-          description: 'Sharp architectural blazer in neutral charcoal tones',
-          image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$135',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Minimalist White Sneakers',
-          description: 'Clean leather sneakers with sleek design',
-          image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'shoes',
-          price: '$95',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Minimalist Leather Tote',
-          description: 'Clean-lined leather bag in neutral tone',
-          image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$125',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Sleek Wristwatch',
-          description: 'Minimalist timepiece with clean design',
-          image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$198',
-          gender: ['male', 'female', 'unisex']
-        },
-        // WOMEN'S ITEMS
-        {
-          title: 'Elegant Black Dress',
-          description: 'Flattering minimalist dress in a timeless black silhouette',
-          image: 'https://images.unsplash.com/photo-1485230895905-ec4093e81ea4?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'dress',
-          price: '$85',
-          gender: ['female']
-        },
-        {
-          title: 'Classic Black Pants',
-          description: 'Timeless straight-leg pants in premium black fabric',
-          image: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'bottoms',
-          price: '$68',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Minimalist Silk Blouse',
-          description: 'Elegant silk top in neutral ivory tones',
-          image: 'https://images.unsplash.com/photo-1604176354204-926873ff3da9?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$78',
-          gender: ['female']
-        },
-        // MEN'S ITEMS
-        {
-          title: 'Tailored Oxford Shirt',
-          description: 'Crisp button-down for professional elegance',
-          image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$58',
-          gender: ['male']
-        },
-        {
-          title: 'Tailored Chino Pants',
-          description: 'Clean-cut pants in classic khaki',
-          image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'bottoms',
-          price: '$72',
-          gender: ['male']
-        },
-        {
-          title: 'Premium Cashmere Sweater',
-          description: 'Soft cashmere blend in a timeless cream hue',
-          image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$89',
-          gender: ['male', 'unisex']
-        }
-      ],
-      vintage: [
-        {
-          title: 'Heritage Denim Jacket',
-          description: 'Authentic vintage wash with timeless appeal',
-          image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$78',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Retro High-Waisted Jeans',
-          description: 'Classic vintage fit in premium denim',
-          image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'bottoms',
-          price: '$65',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Vintage Inspired Sunglasses',
-          description: 'Round frames with golden details',
-          image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$42',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Classic Leather Jacket',
-          description: 'Timeless leather with vintage appeal',
-          image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$195',
-          gender: ['male']
-        },
-        {
-          title: 'Vintage Band Tee',
-          description: 'Authentic retro concert tee',
-          image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$45',
-          gender: ['male', 'female', 'unisex']
-        }
-      ],
-      streetwear: [
-        {
-          title: 'Urban Oversized Hoodie',
-          description: 'Street-ready comfort with modern urban edge',
-          image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$72',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'High-Top Street Sneakers',
-          description: 'Classic street style with contemporary updates',
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'shoes',
-          price: '$95',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Graphic Street Tee',
-          description: 'Bold graphics with authentic street culture vibes',
-          image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$38',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Cargo Pants',
-          description: 'Functional street style with multiple pockets',
-          image: 'https://images.unsplash.com/photo-1603320409990-02d834987237?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'bottoms',
-          price: '$68',
-          gender: ['male', 'unisex']
-        },
-        {
-          title: 'Bomber Jacket',
-          description: 'Classic streetwear essential',
-          image: 'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$98',
-          gender: ['male', 'female', 'unisex']
-        }
-      ],
-      preppy: [
-        {
-          title: 'Classic Oxford Shirt',
-          description: 'Timeless button-down for refined elegance',
-          image: 'https://images.unsplash.com/photo-1598033129183-c4f50c7176c8?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$58',
-          gender: ['male', 'unisex']
-        },
-        {
-          title: 'Striped Casual Elegance',
-          description: 'Preppy stripes with modern sophistication',
-          image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$52',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Tailored Blazer',
-          description: 'Sophisticated elegance for the modern woman',
-          image: 'https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$145',
-          gender: ['female']
-        },
-        {
-          title: 'Delicate Gold Jewelry',
-          description: 'Elegant layered necklaces for sophisticated looks',
-          image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$85',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Luxury Designer Handbag',
-          description: 'Sophisticated craftsmanship meets timeless style',
-          image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$185',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Polo Shirt Classic',
-          description: 'Timeless polo in premium cotton',
-          image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$68',
-          gender: ['male']
-        }
-      ],
-      boho: [
-        {
-          title: 'Flowing Bohemian Maxi',
-          description: 'Free-spirited dress with artistic flair',
-          image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'dress',
-          price: '$68',
-          gender: ['female']
-        },
-        {
-          title: 'Layered Statement Jewelry',
-          description: 'Artisanal pieces for expressive layering',
-          image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$34',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Delicate Chain Collection',
-          description: 'Bohemian elegance in golden layers',
-          image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$29',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Fringe Crossbody Bag',
-          description: 'Boho-chic bag with authentic fringe details',
-          image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$52',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Vintage Leather Sandals',
-          description: 'Handcrafted sandals with bohemian charm',
-          image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5b?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'shoes',
-          price: '$48',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Linen Relaxed Shirt',
-          description: 'Breezy linen shirt in natural tones',
-          image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$54',
-          gender: ['male', 'unisex']
-        }
-      ],
-      gothic: [
-        {
-          title: 'Platform Statement Boots',
-          description: 'Dramatic silhouette with bold presence',
-          image: 'https://images.unsplash.com/photo-1608256246200-53e8b694267f?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'shoes',
-          price: '$125',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Combat Leather Boots',
-          description: 'Rugged elegance with rebellious spirit',
-          image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5b?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'shoes',
-          price: '$98',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Black Leather Jacket',
-          description: 'Dark elegance with gothic edge',
-          image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$185',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Gothic Lace Dress',
-          description: 'Dark romantic elegance',
-          image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'dress',
-          price: '$95',
-          gender: ['female']
-        }
-      ],
-      cyberpunk: [
-        {
-          title: 'Tech-Inspired Jacket',
-          description: 'Futuristic design meets functional innovation',
-          image: 'https://images.unsplash.com/photo-1525450824786-227cbef70703?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$145',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Futuristic Sneakers',
-          description: 'Next-gen footwear with tech-inspired design',
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'shoes',
-          price: '$125',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Metallic Accent Tee',
-          description: 'Cutting-edge style with metallic details',
-          image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$48',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Holographic Accessories',
-          description: 'Futuristic accents with chrome finish',
-          image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$65',
-          gender: ['male', 'female', 'unisex']
-        }
-      ],
-      maximalist: [
-        {
-          title: 'Bold Floral Kimono',
-          description: 'Vibrant kimono with fearless floral patterns',
-          image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'outerwear',
-          price: '$78',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Rainbow Pattern Dress',
-          description: 'Bold multicolor dress with vibrant patterns',
-          image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'dress',
-          price: '$92',
-          gender: ['female']
-        },
-        {
-          title: 'Statement Print Blouse',
-          description: 'Eye-catching blouse with maximalist prints',
-          image: 'https://images.unsplash.com/photo-1567401893414-75b77c480f57?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$68',
-          gender: ['female', 'unisex']
-        },
-        {
-          title: 'Colorful Statement Jewelry',
-          description: 'Bold layered jewelry with vibrant stones',
-          image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'accessories',
-          price: '$45',
-          gender: ['male', 'female', 'unisex']
-        },
-        {
-          title: 'Vibrant Patterned Shirt',
-          description: 'Bold patterns with maximalist energy',
-          image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=300&h=400&fit=crop&auto=format&q=80',
-          category: 'tops',
-          price: '$58',
-          gender: ['male', 'unisex']
-        }
-      ]
-    };
-
-    // Helper function to filter products by gender
-    const filterByGender = (products, gender) => {
-      if (gender === 'prefer-not-to-say' || gender === 'unisex') {
-        return products; // Show all products
-      }
-      return products.filter(p =>
-        p.gender && p.gender.includes(gender)
-      );
-    };
-
-    // Generate diverse recommendations
-    const primaryProducts = productTemplates[primaryStyle] || productTemplates.minimalist;
-    const secondaryProducts = productTemplates[secondaryStyle] || productTemplates.vintage;
-
-    // Filter by user's gender preference
-    const filteredPrimaryProducts = filterByGender(primaryProducts, userGender);
-    const filteredSecondaryProducts = filterByGender(secondaryProducts, userGender);
-
-    // Get products with their source aesthetic marked
-    const primaryWithAesthetic = filteredPrimaryProducts.map(p => ({...p, sourceAesthetic: primaryStyle}));
-    const secondaryWithAesthetic = filteredSecondaryProducts.slice(0, 2).map(p => ({...p, sourceAesthetic: secondaryStyle}));
-
-    // Mix products from primary (80%) and secondary (20%) styles
-    const allProducts = [...primaryWithAesthetic, ...secondaryWithAesthetic];
-
-    // Shuffle and select unique products
-    const shuffled = allProducts.sort(() => 0.5 - Math.random()).slice(0, 6);
-
-    return shuffled.map((product, index) => ({
-      id: `personalized_${product.sourceAesthetic}_${index}_${Date.now()}`,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      description: product.description,
-      aesthetic: product.sourceAesthetic, // Use the actual source aesthetic
-      category: product.category,
-      score: 0.95 - (index * 0.02), // Decreasing scores for variety
-      reasoning: `Perfect match for your ${personalityType} style preferences`,
-      personalizedMessage: `This ${product.title.toLowerCase()} complements your ${product.sourceAesthetic} aesthetic perfectly!`
-    }));
-  };
-
   const fetchRecommendations = async () => {
     if (!userProfile) return;
     
     setLoadingRecommendations(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/quiz/recommendations`, {
+      const userGender = userProfile.gender || localStorage.getItem('user_gender_preference') || 'unisex';
+      
+      const response = await fetch(`${API_BASE_URL}/api/recommendations/live-search`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          quizResults: {
-            personalityType: userProfile.personalityType || userProfile.stylePersonality,
-            confidence: userProfile.confidence || 0.9,
-            preferences: userProfile.preferences,
-            primaryAesthetic: userProfile.primaryAesthetic,
-            secondaryAesthetics: userProfile.secondaryAesthetics,
-            aesthetics: userProfile.aesthetics,
-            cloutScore: userProfile.cloutScore,
-            tasteProfile: userProfile.tasteProfile
-          },
-          userProfile: userProfile
+          userProfile: {
+            ...userProfile,
+            gender: userGender,
+            searchKeywords: userProfile.searchKeywords
+          }
         })
       });
 
+      if (!response.ok) throw new Error('Live search failed');
+      
       const data = await response.json();
       
-      if (response.ok && data.products && data.products.length > 0) {
-        // Convert API products to component format
-        const formattedProducts = data.products.map(product => ({
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          image: getProductImage(product.title, product.category),
-          description: `${product.aesthetic} style - Perfect for your ${userProfile.personalityType || userProfile.stylePersonality} personality!`,
-          aesthetic: product.aesthetic,
-          score: product.score
-        }));
+      if (data.success && data.products.length > 0) {
+        const results = data.products.map((product, index) => {
+          let displayPrice = product.price || '₹1,599';
+          if (typeof displayPrice === 'number') displayPrice = `₹${displayPrice}`;
+          
+          return {
+            id: product.id || `live_${index}`,
+            title: product.name,
+            price: displayPrice,
+            image: product.image_url || getProductImage(product.name, 'tops'),
+            description: product.description,
+            aesthetic: userProfile.primaryAesthetic || 'modern',
+            category: product.category || 'Discovery',
+            score: product.matchScore || (0.95 + (Math.random() * 0.04)),
+            buy_link: product.buy_link || '#'
+          };
+        });
         
-        setRecommendations(formattedProducts);
+        setRecommendations(results);
       } else {
-        // Use fallback recommendations if API fails or returns empty
-        setRecommendations(generateFallbackRecommendations());
+        throw new Error('No live products found');
       }
+      
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
-      // Always provide fallback recommendations on error
-      setRecommendations(generateFallbackRecommendations());
+      console.error('Real-time Discovery Failed, falling back to local vault:', error);
+      const fallbackResults = catalogData.slice(0, 6).map((product, index) => ({
+        id: product.id || `fallback_${index}`,
+        title: product.name,
+        price: `$${product.price}.00`,
+        image: getProductImage(product.name, product.category),
+        description: product.description,
+        aesthetic: product.style[0] || 'minimalist',
+        category: product.category,
+        score: 0.94 - (index * 0.02),
+        buy_link: '#'
+      }));
+      setRecommendations(fallbackResults);
     } finally {
       setLoadingRecommendations(false);
     }
   };
 
   useEffect(() => {
-    // Simulate processing time for dramatic effect
+    setRecommendations([]);
+    setIsLoading(true);
+
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Fetch recommendations after showing results
       setTimeout(() => {
         fetchRecommendations();
-      }, 1000);
-    }, 3000);
+      }, 800);
+    }, 2500);
 
     return () => clearTimeout(timer);
-  }, []); // Remove userProfile dependency to prevent infinite loop
+  }, [userProfile?.personalityType]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen pt-16 flex items-center justify-center bg-brand-navy relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0  opacity-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/10 via-pink-900/10 to-[#c0a0e6]/5/20"></div>
-        
-        <div className="text-center relative z-10">
-          <LoadingSpinner size="xl" color="purple" />
-          <div className="mt-6 space-y-2">
-            <p className="text-xl font-medium text-white">Analyzing your style DNA...</p>
-            <p className="text-gray-300">This is getting interesting 🧬</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userProfile) {
-    console.log('QuizResults: No userProfile found');
-    return (
-      <div className="min-h-screen pt-16 flex items-center justify-center bg-brand-navy">
-        <div className="text-center card-premium p-8 rounded-2xl shadow-lg border-2 border-purple-500/30">
-          <p className="text-xl text-white mb-4 font-semibold">Quiz results not found!</p>
-          <p className="text-gray-300 mb-6">It looks like you haven't completed the quiz yet.</p>
-          <div className="space-y-3">
-            <button 
-              onClick={() => {
-                console.log('Take Quiz clicked from no-profile state - calling startQuiz...');
-                startQuiz();
-              }}
-              className="btn-primary px-8 py-3 rounded-xl transition-colors w-full"
-            >
-              Take Quiz
-            </button>
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="btn-outline px-8 py-3 rounded-xl transition-colors w-full"
-            >
-              Go to Dashboard
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('QuizResults: userProfile found with keys:', Object.keys(userProfile));
-
-  const topAesthetics = userProfile.aesthetics 
-    ? Object.entries(userProfile.aesthetics)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3)
-    : userProfile.primaryAesthetic 
-        ? [[userProfile.primaryAesthetic, 85], ['vintage', 65], ['minimalist', 45]]
-        : [['minimalist', 75], ['streetwear', 55], ['boho', 35]];
-
-  return (
-    <div className="min-h-screen pt-16 bg-brand-navy relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0  opacity-10"></div>
-      <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/10 via-pink-900/10 to-[#c0a0e6]/5/20"></div>
+    retur    <div className="min-h-screen pt-24 flex items-center justify-center bg-white relative overflow-hidden">
+      {/* Background Blooms */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-pink/5 blur-[150px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-sage/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
       
-      <div className="relative max-w-4xl mx-auto px-4 py-12 z-10">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 rounded-full flex items-center justify-center mx-auto mb-6 animate-glow">
-            <Sparkles className="w-10 h-10 text-white" />
+      <div className="text-center relative z-10 p-12 bg-white/40 backdrop-blur-xl border border-brand-gray rounded-[4rem] shadow-2xl max-w-2xl mx-auto animate-scale-in">
+        <LoadingSpinner size="xl" color="pink" />
+        <div className="mt-12 space-y-6">
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-black text-brand-pink uppercase tracking-[0.4em] animate-pulse">Neural Mapping</p>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-dark tracking-tight leading-tight">Analyzing your <span className="text-brand-pink italic">DNA</span>...</h2>
           </div>
-          
-          <h2 className="text-4xl font-bold text-white mb-4 font-heading">
-            Your Style DNA is Ready! 🧬
-          </h2>
-          
-          <p className="text-xl text-gray-200 mb-6 font-body">
-            We've analyzed your subconscious preferences and decoded your unique aesthetic profile.
+          <p className="text-brand-sage font-black uppercase tracking-[0.3em] text-[10px] opacity-60">This is getting interesting 🧬</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+if (!userProfile) {
+  return (
+    <div className="min-h-screen pt-24 flex items-center justify-center bg-white relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-pink/5 blur-[150px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+      <div className="text-center bg-white/50 backdrop-blur-xl p-16 md:p-24 rounded-[4rem] shadow-2xl border border-brand-gray max-w-2xl w-full mx-6 animate-scale-in">
+        <div className="w-24 h-24 bg-brand-cream border border-brand-pink/20 rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-inner">
+          <RotateCcw className="w-10 h-10 text-brand-pink/30" />
+        </div>
+        <p className="text-4xl font-serif font-bold text-brand-dark mb-6 leading-tight">Dossier not found!</p>
+        <p className="text-brand-sage font-bold mb-16 opacity-60 uppercase tracking-[0.3em] text-[10px] leading-relaxed">It looks like your aesthetic DNA is yet to be mapped.</p>
+        <div className="flex flex-col gap-6">
+          <button 
+            onClick={() => startQuiz()}
+            className="w-full bg-brand-dark text-white px-10 py-6 rounded-2xl font-bold transition-all shadow-2xl hover:bg-brand-black hover:-translate-y-1 uppercase tracking-[0.2em] text-xs"
+          >
+            Commence Quiz
+          </button>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="w-full bg-brand-cream text-brand-dark border border-brand-pink/20 px-10 py-6 rounded-2xl transition-all font-bold hover:bg-brand-pink hover:text-white uppercase tracking-[0.2em] text-xs shadow-sm"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const topAesthetics = userProfile.aesthetics 
+  ? Object.entries(userProfile.aesthetics)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+  : userProfile.primaryAesthetic 
+      ? [[userProfile.primaryAesthetic, 85], ['vintage', 65], ['minimalist', 45]]
+      : [['minimalist', 75], ['streetwear', 55], ['boho', 35]];
+
+return (
+  <div className="min-h-screen pt-24 bg-white relative overflow-hidden pb-24 px-6 md:px-12">
+    {/* Background blooms */}
+    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-pink/5 blur-[150px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-sage/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+    
+    <div className="relative max-w-6xl mx-auto py-12 z-10">
+      {/* Header */}
+      <div className="text-center mb-24 animate-fade-in">
+        <div className="w-24 h-24 bg-brand-cream border border-brand-pink/20 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-inner relative group">
+          <div className="absolute inset-0 bg-brand-pink/10 rounded-[2.5rem] animate-ping opacity-20"></div>
+          <Sparkles className="w-12 h-12 text-brand-pink group-hover:scale-125 transition-transform duration-700" />
+        </div>
+        
+        <h2 className="text-5xl md:text-7xl font-serif font-bold text-brand-dark mb-8 tracking-tight leading-tight">
+          Your Style <span className="text-brand-pink italic">DNA</span> is Mapped! 🧬
+        </h2>
+        
+        <p className="text-xl text-brand-sage font-medium mb-8 max-w-3xl mx-auto leading-relaxed uppercase tracking-[0.2em] opacity-60">
+          We've decoded your subconscious preferences into a unique aesthetic profile.
+        </p>
+      </div>
+
+      {/* Results Card */}
+      <div className="bg-white/50 backdrop-blur-xl rounded-[4rem] p-12 md:p-20 border border-brand-gray shadow-2xl mb-20 relative overflow-hidden group">
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-pink/5 blur-3xl rounded-full"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-sage/5 blur-3xl rounded-full"></div>
+        
+        {/* Personality Type */}
+        <div className="text-center mb-20 relative z-10">
+          <p className="text-[10px] font-black text-brand-pink uppercase tracking-[0.4em] mb-6">Signature Archetype</p>
+          <div className="text-6xl md:text-8xl font-serif font-bold mb-10 text-brand-dark tracking-tighter leading-tight">
+            {userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast"}
+          </div>
+          <div className="w-24 h-1.5 bg-brand-pink mx-auto rounded-full mb-12 opacity-30"></div>
+          <p className="text-brand-dark/70 max-w-4xl mx-auto font-medium text-xl leading-relaxed italic">
+            "{userProfile.tasteProfile || userProfile.description || "Your unique style reflects your personal aesthetic preferences. You have a distinctive taste that sets you apart from the crowd."}"
           </p>
         </div>
 
-        {/* Results Card */}
-        <div className="card-premium rounded-3xl p-8 border-2 border-purple-500/30 shadow-lg mb-8 ">
-          {/* Personality Type */}
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-white mb-2">You are a</h3>
-            <div className="text-4xl font-bold mb-4 text-shimmer">
-              {userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast"}
+        {/* Aesthetic Breakdown */}
+        <div className="grid md:grid-cols-3 gap-12 mb-20 border-y border-brand-gray py-16 relative z-10">
+          {topAesthetics.map(([aesthetic, percentage], index) => (
+            <div key={aesthetic} className="text-center group/item">
+              <div className="text-5xl font-bold text-brand-dark mb-4 group-hover/item:scale-110 transition-transform duration-700 tracking-tighter">
+                {percentage}%
+              </div>
+              <div className="text-brand-pink font-black uppercase tracking-[0.3em] text-[10px] mb-8">
+                {aesthetic}
+              </div>
+              <div className="w-full bg-brand-cream/50 rounded-full h-4 overflow-hidden border border-brand-gray shadow-inner p-1">
+                <div 
+                  className="bg-brand-dark h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                  style={{ width: `${percentage}%`, animationDelay: `${index * 300}ms` }}
+                >
+                  <div className="absolute inset-0 bg-brand-pink/10"></div>
+                </div>
+              </div>
             </div>
-            <p className="text-gray-200 max-w-2xl mx-auto font-medium">
-              {userProfile.tasteProfile || userProfile.description || "Your unique style reflects your personal aesthetic preferences. You have a distinctive taste that sets you apart from the crowd."}
-            </p>
+          ))}
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-8 mb-20 relative z-10">
+          <div className="text-center bg-brand-cream/30 rounded-[3rem] p-10 border border-brand-pink/10 hover:shadow-xl transition-all duration-500 group/stat">
+            <div className="flex items-center justify-center mb-4">
+              <TrendingUp className="w-7 h-7 text-brand-pink mr-3 group-hover/stat:scale-125 transition-transform" />
+              <span className="text-5xl font-bold text-brand-dark tracking-tighter">
+                {userProfile.cloutScore}
+              </span>
+            </div>
+            <div className="text-brand-sage font-black text-[10px] tracking-[0.3em] uppercase opacity-60">Clout Score</div>
           </div>
 
-          {/* Aesthetic Breakdown */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {topAesthetics.map(([aesthetic, percentage], index) => (
-              <div key={aesthetic} className="text-center">
-                <div className="text-3xl font-bold text-brand-gold opacity-50 mb-2">
-                  {percentage}%
-                </div>
-                <div className="text-white font-semibold capitalize mb-2">
-                  {aesthetic}
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 h-2 rounded-full transition-all duration-1000"
-                    style={{ 
-                      width: `${percentage}%`,
-                      animationDelay: `${index * 200}ms`
+          <div className="text-center bg-brand-cream/30 rounded-[3rem] p-10 border border-brand-pink/10 hover:shadow-xl transition-all duration-500 group/stat">
+            <div className="flex items-center justify-center mb-4">
+              <Target className="w-7 h-7 text-brand-pink mr-3 group-hover/stat:scale-125 transition-transform" />
+              <span className="text-5xl font-bold text-brand-dark tracking-tighter">
+                {userProfile.styleStreak}
+              </span>
+            </div>
+            <div className="text-brand-sage font-black text-[10px] tracking-[0.3em] uppercase opacity-60">Style Streak</div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center relative z-10">
+          <button
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                  const response = await fetch(`${API_BASE_URL}/api/inbox/generate-recommendations`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                  });
+                  if (response.ok) console.log('Inbox messages generated successfully');
+                }
+              } catch (error) { console.error('Error generating inbox messages:', error); }
+              navigate('/dashboard');
+            }}
+            className="w-full sm:w-auto bg-brand-dark text-white px-12 py-6 rounded-2xl font-bold text-xs uppercase tracking-[0.3em] hover:bg-brand-black hover:-translate-y-2 transition-all duration-500 shadow-2xl flex items-center justify-center gap-4"
+          >
+            <span>Discovery Portal</span>
+            <Sparkles className="w-5 h-5 text-brand-pink" />
+          </button>
+
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: 'My StyleGenie DNA',
+                  text: `I'm a ${userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast"}! What's your style DNA?`,
+                  url: window.location.origin
+                });
+              } else {
+                navigator.clipboard.writeText(`I'm a ${userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast"}! Find out your style DNA at ${window.location.origin}`);
+                alert('Share text copied to clipboard!');
+              }
+            }}
+            className="w-full sm:w-auto bg-brand-cream text-brand-dark px-10 py-6 rounded-2xl font-bold text-xs uppercase tracking-[0.3em] hover:bg-brand-pink hover:text-white hover:-translate-y-2 transition-all duration-500 shadow-xl flex items-center justify-center gap-4 border border-brand-pink/10"
+          >
+            <Share2 className="w-5 h-5" />
+            <span>Broadcast</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to retake the quiz? Your current results will be replaced.')) {
+                startQuiz();
+              }
+            }}
+            className="w-full sm:w-auto bg-white text-brand-sage border border-brand-gray hover:border-brand-pink/30 hover:bg-brand-cream/30 px-10 py-6 rounded-2xl font-bold text-xs uppercase tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-4"
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Recommendations Section */}
+      <div className="bg-white rounded-[4rem] p-12 md:p-20 border border-brand-gray shadow-2xl mb-20 relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-brand-pink/20 to-transparent"></div>
+        <div className="text-center mb-16">
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <p className="text-[10px] font-black text-brand-pink uppercase tracking-[0.4em]">Curated For You</p>
+            <h3 className="text-4xl md:text-6xl font-serif font-bold text-brand-dark tracking-tight leading-tight">The <span className="text-brand-pink italic">Discovery</span> Edit</h3>
+          </div>
+          <p className="text-brand-sage font-medium text-lg max-w-3xl mx-auto uppercase tracking-[0.2em] opacity-60">
+            Precision-matched pieces reflecting your signature archetype.
+          </p>
+        </div>
+
+        {loadingRecommendations ? (
+          <div className="text-center py-24 flex flex-col items-center gap-8 animate-fade-in">
+            <LoadingSpinner size="lg" color="pink" />
+            <div className="flex flex-col gap-2">
+               <p className="text-brand-pink font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">Atelier Sourcing</p>
+               <p className="text-brand-dark font-serif font-bold text-2xl">Scouring global boutiques for your matches...</p>
+            </div>
+          </div>
+        ) : recommendations.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16">
+            {recommendations.map(product => (
+              <div key={product.id} className="bg-white rounded-[3.5rem] border border-brand-gray shadow-[0_15px_40px_rgba(137,162,147,0.04)] overflow-hidden group/card hover:shadow-[0_40px_80px_rgba(137,162,147,0.12)] transition-all duration-700 flex flex-col hover:-translate-y-4">
+                <div className="overflow-hidden bg-brand-cream/20 aspect-[3/4.5] relative">
+                  <img 
+                    src={product.image}
+                    alt={product.title}
+                    className="w-full h-full object-cover grayscale-[10%] group-hover/card:grayscale-0 group-hover/card:scale-110 transition-all duration-1000"
+                    onError={(e) => {
+                      if (!e.target.dataset.failed) {
+                        e.target.dataset.failed = true;
+                        e.target.src = getProductImage(product.title, product.category);
+                      }
                     }}
-                  ></div>
+                  />
+                  <div className="absolute top-6 left-6 px-4 py-2 bg-brand-dark/90 backdrop-blur-md text-white text-[9px] font-black rounded-full flex items-center gap-3 shadow-2xl border border-white/10 z-10 uppercase tracking-widest">
+                     <div className="w-1.5 h-1.5 bg-brand-pink rounded-full animate-pulse"></div>
+                     {Math.round(product.score * 100)}% Match
+                  </div>
+                </div>
+                <div className="p-10 flex-1 flex flex-col">
+                  <div className="mb-8">
+                    <span className="text-[9px] font-black text-brand-pink uppercase tracking-[0.3em] mb-4 block opacity-80">{product.aesthetic} Aesthetic</span>
+                    <h4 className="text-brand-dark font-serif font-bold text-2xl mb-4 line-clamp-1 group-hover/card:text-brand-pink transition-colors duration-500 leading-tight">{product.title}</h4>
+                    <p className="text-2xl font-bold text-brand-dark tracking-tighter">{product.price}</p>
+                  </div>
+                  
+                  <p className="text-brand-sage/70 text-sm font-medium line-clamp-2 mb-10 leading-relaxed italic">"{product.description}"</p>
+                  
+                  <div className="flex gap-4 pt-10 border-t border-brand-gray/50 mt-auto">
+                    <button 
+                      onClick={() => addToCart(product)}
+                      className="flex-1 bg-brand-dark text-white hover:bg-brand-black py-5 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all duration-500 shadow-lg hover:shadow-2xl"
+                    >
+                      <ShoppingBag className="w-4 h-4 text-brand-pink" />
+                      Move to Bag
+                    </button>
+                    <button 
+                      onClick={() => addToFavorites(product)}
+                      className="bg-brand-cream/50 hover:bg-brand-pink hover:text-white text-brand-pink p-5 rounded-2xl transition-all duration-500 border border-brand-pink/10 shadow-sm"
+                    >
+                      <Heart className="w-5 h-5" />
+                    </button>
+                  </div>
+                  {product.buy_link !== '#' && (
+                    <div className="mt-4">
+                      <a 
+                        href={product.buy_link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full bg-white text-brand-sage border border-brand-gray hover:border-brand-pink/30 hover:bg-brand-cream/30 py-4 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center transition-all duration-500 block text-center"
+                      >
+                        Visit Boutique
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
-            <div className="text-center bg-gradient-to-r from-[#d4af37]/10 to-[#120D20] rounded-xl p-4 border border-purple-500/30">
-              <div className="flex items-center justify-center mb-2">
-                <TrendingUp className="w-6 h-6 text-brand-gold opacity-50 mr-2" />
-                <span className="text-2xl font-bold text-brand-gold opacity-50">
-                  {userProfile.cloutScore}
-                </span>
-              </div>
-              <div className="text-gray-300 font-medium">Clout Score</div>
+        ) : (
+          <div className="text-center py-24 bg-brand-cream/20 rounded-[3.5rem] border border-brand-pink/10 flex flex-col items-center gap-8 animate-fade-in relative overflow-hidden">
+            <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-brand-pink/5 blur-3xl rounded-full"></div>
+            <div className="w-24 h-24 bg-white border border-brand-gray rounded-full flex items-center justify-center shadow-inner group hover:rotate-180 transition-transform duration-1000">
+              <Sparkles className="w-10 h-10 text-brand-pink/40" />
             </div>
-
-            <div className="text-center bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20/20 to-[#d4af37]/5/20 rounded-xl p-4 border border-green-500/30">
-              <div className="flex items-center justify-center mb-2">
-                <Target className="w-6 h-6 text-brand-gold opacity-50 mr-2" />
-                <span className="text-2xl font-bold text-brand-gold opacity-50">
-                  {userProfile.styleStreak}
-                </span>
-              </div>
-              <div className="text-gray-300 font-medium">Day Streak</div>
+            <div className="flex flex-col gap-4">
+               <h3 className="text-brand-dark font-serif font-bold text-3xl">Recommendations Pending</h3>
+               <p className="text-brand-sage font-black text-[10px] uppercase tracking-[0.3em] opacity-60">The digital atelier is curating your edit.</p>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={async () => {
-                // Generate inbox messages before navigating to dashboard
-                try {
-                  const token = localStorage.getItem('access_token');
-                  if (token) {
-                    // Trigger inbox message generation
-                    const response = await fetch(`${API_BASE_URL}/api/inbox/generate-recommendations`, {
-                      method: 'POST',
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                      }
-                    });
-                    
-                    if (response.ok) {
-                      console.log('Inbox messages generated successfully');
-                    }
-                  }
-                } catch (error) {
-                  console.error('Error generating inbox messages:', error);
-                }
-                
-                // Navigate to dashboard
-                navigate('/dashboard');
-              }}
-              className="btn-primary px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+            <button 
+              onClick={fetchRecommendations}
+              className="bg-brand-dark hover:bg-brand-black text-white px-12 py-5 rounded-2xl transition-all duration-500 font-bold uppercase tracking-[0.2em] text-xs shadow-2xl hover:-translate-y-1"
             >
-              <span>See My Recommendations</span>
-              <Sparkles className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={() => {
-                // Mock share functionality
-                if (navigator.share) {
-                  navigator.share({
-                    title: 'My StyleGenie DNA',
-                    text: `I'm a ${userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast"}! What's your style DNA?`,
-                    url: window.location.origin
-                  });
-                } else {
-                  // Fallback for browsers that don't support Web Share API
-                  navigator.clipboard.writeText(
-                    `I'm a ${userProfile.personalityType || userProfile.stylePersonality || "Style Enthusiast"}! Find out your style DNA at ${window.location.origin}`
-                  );
-                  alert('Share text copied to clipboard!');
-                }
-              }}
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-2 border-blue-500/50 hover:border-blue-400 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 hover:scale-105"
-            >
-              <Share2 className="w-5 h-5" />
-              <span>Share Results</span>
-            </button>
-            
-            <button
-              onClick={() => {
-                console.log('Retake Quiz button clicked!');
-                // Confirm with user before retaking quiz
-                if (window.confirm('Are you sure you want to retake the quiz? Your current results will be replaced.')) {
-                  console.log('User confirmed retake, calling startQuiz...');
-                  startQuiz(); // This will reset quiz state and navigate to /quiz
-                }
-              }}
-              className="bg-gradient-to-r from-[#c0a0e6]/20 border border-[#c0a0e6]/20 to-[#c0a0e6]/5 hover:from-[#c0a0e6]/20 border border-[#c0a0e6]/20 hover:to-[#c0a0e6]/5 text-white border-2 border-orange-500/50 hover:border-orange-400 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 hover:scale-105"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span>Retake Quiz</span>
+              Refresh Vault
             </button>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Recommendations Section */}
-        <div className="card-premium backdrop-blur-lg rounded-3xl p-8 border-2 border-purple-500/30 shadow-lg mb-8 ">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-white mb-2">✨ Your Curated Collection</h3>
-            <p className="text-gray-200 font-medium">
-              Based on your {userProfile.personalityType || userProfile.stylePersonality || "unique style"} DNA, here are pieces that will resonate with your style
-            </p>
+      {/* Fun Fact */}
+      <div className="text-center bg-brand-dark rounded-[3.5rem] p-16 md:p-24 shadow-[0_50px_100px_rgba(0,0,0,0.3)] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-pink/10 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-sage/5 blur-[120px] rounded-full"></div>
+        <div className="relative z-10 flex flex-col items-center gap-8">
+          <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
+            <span className="text-3xl">🎯</span>
           </div>
-
-          {loadingRecommendations ? (
-            <div className="text-center py-8">
-              <LoadingSpinner size="lg" color="purple" />
-              <p className="text-gray-300 mt-4">Finding your perfect matches...</p>
-            </div>
-          ) : recommendations.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendations.map(product => (
-                <div key={product.id} className="card-enhanced rounded-xl p-4 border-2 border-purple-500/30 hover:border-purple-400 transition-all duration-300 shadow-lg hover:shadow-lg">
-                  <img 
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
-                  <div className="space-y-2">
-                    <h4 className="text-white font-semibold">{product.title}</h4>
-                    <p className="text-brand-gold opacity-50 font-bold">{product.price}</p>
-                    <p className="text-gray-300 text-sm">{product.description}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full font-medium">
-                        {product.aesthetic}
-                      </span>
-                      <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full font-medium">
-                        {Math.round(product.score * 100)}% match
-                      </span>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <button 
-                        onClick={() => addToCart(product)}
-                        className="flex-1 btn-primary py-2 px-3 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors"
-                      >
-                        <ShoppingBag className="w-4 h-4" />
-                        Add to Cart
-                      </button>
-                      <button 
-                        onClick={() => addToFavorites(product)}
-                        className="bg-gray-700 hover:bg-gray-600 text-gray-200 p-2 rounded-lg transition-colors"
-                      >
-                        <Heart className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-300 font-medium">No recommendations available at the moment</p>
-              <button 
-                onClick={fetchRecommendations}
-                className="mt-4 btn-primary px-6 py-2 rounded-lg transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Fun Fact */}
-        <div className="text-center bg-gradient-to-r from-[#c0a0e6]/20 border border-[#c0a0e6]/20/30 to-[#c0a0e6]/5/30 rounded-xl p-6 border-2 border-cyan-500/30">
-          <h4 className="text-white font-bold mb-2">🎯 Fun Fact</h4>
-          <p className="text-gray-200 font-medium">
-            Your aesthetic combination is shared by only 6% of StyleGenie users. 
-            You're officially unique! 
+          <div className="flex flex-col gap-4">
+             <p className="text-[10px] font-black text-brand-pink uppercase tracking-[0.4em]">Statistical Insight</p>
+             <h4 className="text-white font-serif font-bold text-3xl md:text-5xl tracking-tight leading-tight">Your Signature is <span className="text-brand-pink italic">Rare</span></h4>
+          </div>
+          <p className="text-white/60 font-medium text-xl leading-relaxed max-w-3xl mx-auto italic">
+            "Your specific aesthetic combination is shared by only <span className="text-brand-pink font-bold">6%</span> of StyleGenie users. You are officially part of the style vanguard."
           </p>
         </div>
       </div>
+    </div></div>
     </div>
   );
 };

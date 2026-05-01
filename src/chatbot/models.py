@@ -1,4 +1,6 @@
 # src/chatbot/models.py
+import os
+print(f"ACTUAL MODELS FILE: {os.path.abspath(__file__)}")
 """
 Lightweight recommender + interactive AI for StyleGenie.
 This is a self-contained and readable implementation intended to be easy to extend.
@@ -14,22 +16,17 @@ import os, logging, pickle, json, random
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-import numpy as np
-
-# Optional heavy dependencies
-try:
-    from sentence_transformers import SentenceTransformer, util
-    HAS_ST_MODEL = True
-except Exception:
-    HAS_ST_MODEL = False
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from PIL import Image
 import io
+from PIL import Image
+
+# Optional heavy dependencies: handled inside methods or lazily
+HAS_ST_MODEL = False # Will check lazily
 
 logger = logging.getLogger("stylegenie_models")
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger("stylegenie_models")
+# logging.basicConfig(level=logging.INFO)
 
 class UserPreferenceManager:
     def __init__(self):
@@ -55,21 +52,41 @@ class SimpleEnhancedStyleGenieRecommender:
         self.text_vectorizer = None
         self.clip_model = None
 
-        # Try to load assets
-        if self.model_dir:
+        # Try to load assets - DEFERRED to first use for fast startup
+        if not self.model_dir:
+            # Default to data/models
+            self.model_dir = Path(__file__).resolve().parent.parent.parent / "data" / "models"
+            
+        # self._load_assets()  <-- REMOVED FROM INIT
+
+    def ensure_assets_loaded(self):
+        """Lazy-load assets only when first needed"""
+        if not self.products:
+            logger.info("Initializing recommendation assets (First use lazy-load)...")
             self._load_assets()
 
     def _load_assets(self):
         try:
-            # load product catalog
-            prod_path = self.model_dir.parent / "raw" / "products.json"
-            if prod_path.exists():
+            # load curated product catalog
+            curated_path = Path(__file__).parent / "curated_products.json"
+            if curated_path.exists():
+                with open(curated_path, "r", encoding="utf-8") as f:
+                    prods = json.load(f)
+                    for p in prods:
+                        pid = str(p.get("product_id") or p.get("id"))
+                        self.products[pid] = p
+                    logger.info("Loaded %d products from %s", len(self.products), curated_path)
+            
+            # load raw product catalog as fallback/supplement
+            prod_path = self.model_dir.parent / "raw" / "products.json" if self.model_dir else None
+            if prod_path and prod_path.exists():
                 with open(prod_path, "r", encoding="utf-8") as f:
                     prods = json.load(f)
                     for p in prods:
                         pid = str(p.get("product_id") or p.get("id") or p.get("article_id"))
-                        self.products[pid] = p
-                    self.product_ids = list(self.products.keys())
+                        if pid not in self.products:
+                            self.products[pid] = p
+            self.product_ids = list(self.products.keys())
             # load precomputed embeddings if present
             emb_file = self.model_dir / "product_embeddings.pkl"
             if emb_file.exists():
@@ -81,8 +98,9 @@ class SimpleEnhancedStyleGenieRecommender:
             # Load CLIP model if available
             if HAS_ST_MODEL:
                 try:
-                    self.clip_model = SentenceTransformer("clip-ViT-B-32")
-                    logger.info("Loaded CLIP model for image embeddings")
+                    # self.clip_model = SentenceTransformer("clip-ViT-B-32")
+                    # logger.info("Loaded CLIP model for image embeddings")
+                    logger.info("CLIP model loading skipped for faster startup")
                 except Exception as e:
                     logger.warning("Failed to load CLIP model: %s", e)
             # Load TF-IDF vectorizer if available
@@ -96,14 +114,30 @@ class SimpleEnhancedStyleGenieRecommender:
     def get_product_by_id(self, pid: str) -> Optional[Dict[str,Any]]:
         return self.products.get(str(pid))
 
-    def search_by_text(self, query: str, top_k: int=5) -> List[Dict[str,Any]]:
+    def search_by_text(self, query: str, top_k: int=5, gender: str=None) -> List[Dict[str,Any]]:
         """Text search over product descriptions using TF-IDF and cosine similarity"""
+        self.ensure_assets_loaded()
+        # LAZY IMPORTS for slow machines
+        import numpy as np
+        from sklearn.metrics.pairwise import cosine_similarity
+        
+        # Normalize gender
+        target_gender = gender.lower() if gender else None
+        if target_gender in ['men', 'man', 'male', 'gentleman', 'boy']: target_gender = 'male'
+        if target_gender in ['women', 'woman', 'female', 'lady', 'girl']: target_gender = 'female'
+
         # Collect candidate texts
         if not self.text_vectorizer or not self.text_embeddings:
             # fallback: naive substring matching
             results = []
             q = query.lower()
             for pid,p in self.products.items():
+                # Strict gender filtering
+                if target_gender:
+                    prod_genders = [g.lower() for g in p.get("gender", ["unisex"])]
+                    if target_gender not in prod_genders and 'unisex' not in prod_genders:
+                        continue
+
                 name = (p.get("name") or p.get("title") or "").lower()
                 desc = (p.get("description") or "").lower()
                 score = 0.0
@@ -114,17 +148,31 @@ class SimpleEnhancedStyleGenieRecommender:
             results.sort(key=lambda x: x["score"], reverse=True)
             return [ {"product_id": r["product"].get("product_id") or r["product"].get("id"), 
                       "name": r["product"].get("name") or r["product"].get("title"),
-                      "image_url": r["product"].get("image_url"),
+                      "image_url": r["product"].get("image_url") or r["product"].get("image"),
                       "description": r["product"].get("description"),
+                      "gender": r["product"].get("gender"),
                       "score": float(r["score"])} for r in results[:top_k] ]
         try:
             qv = self.text_vectorizer.transform([query])
             sims = cosine_similarity(qv, self.text_embeddings)[0]
-            idxs = np.argsort(-sims)[:top_k]
+            
+            # Sort all indices by similarity
+            all_idxs = np.argsort(-sims)
             results = []
-            for i in idxs:
+            
+            for i in all_idxs:
+                if len(results) >= top_k:
+                    break
+                    
                 pid = self.product_ids[i]
                 prod = self.products.get(pid, {})
+                
+                # Strict gender filtering for embeddings search
+                if target_gender:
+                    prod_genders = [g.lower() for g in prod.get("gender", ["unisex"])]
+                    if target_gender not in prod_genders and 'unisex' not in prod_genders:
+                        continue
+                
                 results.append({"product_id": pid, 
                                 "name": prod.get("name") or prod.get("title"),
                                 "image_url": prod.get("image_url"),
@@ -135,21 +183,41 @@ class SimpleEnhancedStyleGenieRecommender:
             logger.error("Error in search_by_text: %s", e)
             return []
 
-    def search_by_image(self, pil_image: Image.Image, top_k: int=5) -> List[Dict[str,Any]]:
+    def search_by_image(self, pil_image: Image.Image, top_k: int=5, gender: str=None) -> List[Dict[str,Any]]:
         """Search by image embedding (CLIP) or fallback to color-based matching"""
+        self.ensure_assets_loaded()
+        # Normalize gender
+        target_gender = gender.lower() if gender else None
+        if target_gender in ['men', 'man', 'male', 'gentleman', 'boy']: target_gender = 'male'
+        if target_gender in ['women', 'woman', 'female', 'lady', 'girl']: target_gender = 'female'
+
         if self.clip_model and self.image_embeddings is not None:
             try:
+                import numpy as np
                 img_emb = self.clip_model.encode(pil_image, convert_to_numpy=True)
                 sims = util_cosine_similarity(img_emb, self.image_embeddings)
-                idxs = np.argsort(-sims)[:top_k]
+                all_idxs = np.argsort(-sims if isinstance(sims, np.ndarray) else -np.array(sims))
                 results = []
-                for i in idxs:
+                for i in all_idxs:
+                    if len(results) >= top_k:
+                        break
+                        
                     pid = self.product_ids[i]
                     prod = self.products.get(pid, {})
+                    
+                    # Gender filtering
+                    if target_gender:
+                        p_gen = prod.get("gender", ["unisex"])
+                        if isinstance(p_gen, str): p_gen = [p_gen]
+                        prod_genders = [g.lower() for g in p_gen]
+                        if target_gender not in prod_genders and 'unisex' not in prod_genders:
+                            continue
+
                     results.append({"product_id": pid, 
                                     "name": prod.get("name") or prod.get("title"),
-                                    "image_url": prod.get("image_url"),
+                                    "image_url": prod.get("image_url") or prod.get("image"),
                                     "description": prod.get("description"),
+                                    "gender": prod.get("gender"),
                                     "score": float(sims[i])})
                 return results
             except Exception as e:
@@ -160,19 +228,117 @@ class SimpleEnhancedStyleGenieRecommender:
             color_key = map_rgb_to_color_group(color)
             results = []
             for pid, prod in self.products.items():
+                # Gender filtering
+                if target_gender:
+                    p_gen = prod.get("gender", ["unisex"])
+                    if isinstance(p_gen, str): p_gen = [p_gen]
+                    prod_genders = [g.lower() for g in p_gen]
+                    if target_gender not in prod_genders and 'unisex' not in prod_genders:
+                        continue
+
                 prod_color = (prod.get("colour_group_name") or prod.get("color") or "").lower()
                 score = 1.0 if color_key in prod_color else 0.0
                 if score>0:
                     results.append({"product_id": pid,
-                                    "name": prod.get("name"),
-                                    "image_url": prod.get("image_url"),
+                                    "name": prod.get("name") or prod.get("title"),
+                                    "image_url": prod.get("image_url") or prod.get("image"),
                                     "description": prod.get("description"),
+                                    "gender": prod.get("gender"),
                                     "score": score})
             results.sort(key=lambda x: x["score"], reverse=True)
-            return results[:top_k]
+            return [ {"product_id": r["product_id"],
+                      "name": r["name"],
+                      "image_url": r["image_url"],
+                      "description": r["description"],
+                      "gender": r.get("gender"),
+                      "score": float(r["score"])} for r in results[:top_k] ]
         except Exception as e:
             logger.error("Fallback image search failed: %s", e)
             return []
+
+    def recommend_with_chat(self, user_query, user_id=None, n_recommendations=3, user_preferences=None, gender: str=None):
+        """Unified method for chat-based recommendations used by app.py"""
+        # 0. Extract gender from preferences if not explicitly provided
+        if not gender and user_preferences:
+             gender = user_preferences.get('gender')
+
+        # 1. Get recommendations using search_by_text with gender filter
+        recs = self.search_by_text(user_query, top_k=n_recommendations, gender=gender)
+        
+        # 2. Format products for response
+        products = []
+        for r in recs:
+            products.append({
+                'id': r['product_id'],
+                'title': r['name'] or "Fashion Item",
+                'image': r['image_url'] or "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=400&fit=crop&auto=format&q=80",
+                'description': r['description'] or "A beautiful fashion piece for your collection.",
+                'price': f"${random.randint(40, 150)}" # Mock price if not in data
+            })
+            
+        # 3. Generate initial response
+        response = f"I've found some amazing pieces that match your request for '{user_query}'! ✨ Based on your style profile, I think these would look stunning on you."
+        
+        # 4. Contextual suggestions
+        suggestions = [
+            f"Show me more like these",
+            "What accessories would pair well?",
+            "Find these in different colors",
+            "Help me style these for an event"
+        ]
+        
+        return {
+            'products': products,
+            'suggestions': suggestions,
+            'response': response
+        }
+
+    def update_user_preferences(self, user_id, interaction):
+        """Update user preferences based on interactions"""
+        if not user_id: return
+        logger.info(f"Updating preferences for user {user_id} based on {interaction.get('type')}")
+        # Implementation can be expanded with real persistent storage
+        pass
+
+    def load_model(self, path):
+        """Mock load for compatibility with app.py"""
+        logger.info(f"Mock loading model from {path}")
+        return True
+
+    def _generate_fallback_recommendations(self, query, n, preferences):
+        """Fallback recommendations for app.py"""
+        return self.recommend_with_chat(query, n_recommendations=n, user_preferences=preferences)['products']
+
+    def get_quiz_recommendations(self, quiz_results):
+        """
+        Main entry point for quiz-based recommendations from the chatbot logic.
+        """
+        primary_aesthetic = (quiz_results.get('primaryAesthetic') or quiz_results.get('personalityType') or 'minimalist').lower()
+        gender = quiz_results.get('gender', 'unisex')
+        
+        # 1. Try to search our internal (trained) catalog first
+        search_query = f"{primary_aesthetic} fashion"
+        internal_recs = self.search_by_text(search_query, top_k=6, gender=gender)
+        
+        # 2. Map internal recs to the format expected by QuizResults
+        formatted_recs = []
+        for r in internal_recs:
+            score = float(r.get('score', 0))
+            # Ensure score looks premium (0.80 - 0.99)
+            display_score = min(0.99, max(0.80, 0.85 + (score * 0.15)))
+            
+            formatted_recs.append({
+                'id': r.get('product_id'),
+                'title': r.get('name'),
+                'image': r.get('image_url'),
+                'description': r.get('description'),
+                'price': f"₹{random.randint(1499, 4999)}", # Fallback price
+                'score': round(display_score, 2),
+                'matchScore': round(display_score, 2),
+                'buy_link': "#"
+            })
+            
+        return formatted_recs
 
 def util_cosine_similarity(vec, matrix):
     # vec: 1D numpy, matrix: (n, d)

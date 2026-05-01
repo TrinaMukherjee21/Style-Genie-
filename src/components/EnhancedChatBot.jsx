@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, X, Bot, ShoppingBag, Heart, Sparkles, Star, Wand2, Zap, Crown, History, Inbox, Plus, Menu, Trash2, Eye, Camera, ShoppingCart, Mic } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { MessageCircle, Send, X, Bot, ShoppingBag, Heart, Sparkles, Star, Wand2, Zap, Crown, History, Inbox, Plus, Menu, Trash2, Eye, Camera, ShoppingCart, Mic, Loader2 } from 'lucide-react';
 
 import { useUserContext } from '../context/UserContext';
 import API_BASE_URL from '../config';
@@ -238,16 +239,19 @@ const EnhancedChatBot = () => {
         primaryAesthetic: user?.primaryAesthetic || 'minimalist'
       };
 
-      const response = await fetch(`${API_BASE}/chat`, {
+      const response = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: userId,
-          chat_id: currentChatId,
           message: message,
-          user_profile: userProfileData
+          history: messages.slice(-10).map(m => ({ 
+            role: m.type === 'user' ? 'user' : 'assistant', 
+            content: m.content 
+          })),
+          user_profile: userProfileData,
+          image_data: null // Handled separately in handleImageUpload if needed
         })
       });
 
@@ -382,15 +386,17 @@ const EnhancedChatBot = () => {
           primaryAesthetic: user?.primaryAesthetic || 'minimalist'
         };
 
-        const response = await fetch(`${API_BASE}/chat`, {
+        const response = await fetch(`${API_BASE}/api/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            user_id: userId,
-            chat_id: currentChatId,
             message: 'I uploaded an image. Can you help me style this or find similar pieces?',
+            history: messages.slice(-5).map(m => ({ 
+              role: m.type === 'user' ? 'user' : 'assistant', 
+              content: m.content 
+            })),
             user_profile: userProfileData,
             image_data: imageData
           })
@@ -699,7 +705,20 @@ const EnhancedChatBot = () => {
                         <span className="text-xs text-brand-gold opacity-50 font-semibold">StyleBot AI</span>
                       </div>
                     )}
-                    <p className="leading-relaxed">{message.content}</p>
+                    <div className="agentic-prose prose prose-invert max-w-none">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+
+                    {/* Verified Store Checks (Agentic Feature) */}
+                    {(message.type === 'bot' && (message.content.includes('Myntra') || message.content.includes('Ajio') || message.content.includes('Urbanic'))) && (
+                      <div className="flex gap-2 flex-wrap mt-4 border-t border-brand-gold/10 pt-3">
+                        {['Myntra', 'Ajio', 'Urbanic', 'Flipkart', 'Savana'].map(store => message.content.includes(store) && (
+                          <div key={store} className="px-2 py-0.5 bg-brand-gold/10 border border-brand-gold/20 rounded-full text-[8px] uppercase font-bold tracking-widest text-brand-gold/70">
+                            Verified Find: {store}
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     {message.image && (
                       <div className="mt-3">

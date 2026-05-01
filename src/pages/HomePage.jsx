@@ -6,7 +6,7 @@ import CallToAction from '../components/home/CallToAction';
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen bg-brand-navy  font-body">
+    <div className="min-h-screen bg-white font-body">
       <HeroSection />
       <AboutSection />
       <FeatureCards />

@@ -10,7 +10,6 @@ const SharePanel = () => {
 
   const handleShare = async () => {
     const shareText = generateShareText(userProfile);
-    
     if (navigator.share) {
       try {
         await navigator.share({
@@ -22,7 +21,6 @@ const SharePanel = () => {
         console.log('Error sharing:', error);
       }
     } else {
-      // Fallback to clipboard
       try {
         await navigator.clipboard.writeText(shareText + ` ${window.location.origin}`);
         alert('Share text copied to clipboard!');
@@ -33,7 +31,6 @@ const SharePanel = () => {
   };
 
   const handleDownload = () => {
-    // Create a simple text file with profile data
     const profileData = `
 StyleGenie Profile
 =================
@@ -73,31 +70,32 @@ Taste Profile: ${userProfile.tasteProfile}
   };
 
   return (
-    <div className="mt-8 text-center">
-      <h3 className="text-xl font-bold text-white mb-4">Share Your Style DNA</h3>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="text-center bg-brand-cream/20 rounded-[3rem] p-10 border border-brand-pink/10 shadow-inner relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 blur-3xl rounded-full"></div>
+      <h3 className="text-2xl font-serif font-bold text-brand-dark mb-10 relative z-10 tracking-tight">Broadcast Your <span className="text-brand-pink italic">DNA</span></h3>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
         <button
           onClick={handleShare}
-          className="bg-gradient-to-r from-[#d4af37]/20 border border-[#d4af37]/20 to-[#d4af37]/5 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+          className="bg-brand-dark text-white px-10 py-5 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-brand-black hover:-translate-y-1 hover:shadow-2xl transition-all duration-500 flex items-center justify-center gap-4 shadow-xl"
         >
-          <Share2 className="w-5 h-5" />
-          <span>Share Profile</span>
+          <Share2 className="w-5 h-5 text-brand-pink" />
+          <span>Broadcast</span>
         </button>
         
         <button
           onClick={handleCopyProfile}
-          className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
+          className="bg-white hover:bg-brand-cream text-brand-sage border border-brand-gray px-10 py-5 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-4 hover:border-brand-pink/30 hover:text-brand-dark"
         >
           <Copy className="w-5 h-5" />
-          <span>Copy Summary</span>
+          <span>Replicate</span>
         </button>
         
         <button
           onClick={handleDownload}
-          className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
+          className="bg-white hover:bg-brand-cream text-brand-sage border border-brand-gray px-10 py-5 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-4 hover:border-brand-pink/30 hover:text-brand-dark"
         >
           <Download className="w-5 h-5" />
-          <span>Download</span>
+          <span>Archive</span>
         </button>
       </div>
     </div>

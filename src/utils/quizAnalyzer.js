@@ -1,5 +1,3 @@
-import { QUIZ_ITEMS } from './realQuizData.js';
-
 export class QuizAnalyzer {
   constructor() {
     this.preferences = {
@@ -22,8 +20,8 @@ export class QuizAnalyzer {
     const colorScores = {};
     const tagScores = {};
 
-    // Use gender-specific quiz items if provided, or default to QUIZ_ITEMS
-    const quizItems = quizItemsByGender || QUIZ_ITEMS;
+    // Use gender-specific quiz items if provided
+    const quizItems = quizItemsByGender || [];
 
     // Process each response with enhanced logic
     responses.forEach((response, index) => {
@@ -98,6 +96,9 @@ export class QuizAnalyzer {
     // Generate taste profile description
     const tasteProfile = this.generateTasteProfile(primaryStyle, styleScores, gender);
 
+    // Generate high-accuracy search keywords for Live Discovery
+    const searchKeywords = this.generateSearchKeywords(primaryStyle, personalityProfile, gender);
+
     const result = {
       personalityType: personalityProfile.type,
       tasteProfile: tasteProfile,
@@ -109,12 +110,41 @@ export class QuizAnalyzer {
       primaryAesthetic: primaryStyle,
       secondaryAesthetics: this.getSecondaryAesthetics(styleScores, primaryStyle),
       traits: personalityProfile.traits,
+      searchKeywords: searchKeywords, // NEW: High-precision terms for Live Search
       isHybrid: personalityProfile.isHybrid || false,
       gender: gender || 'unspecified'
     };
 
     console.log('Final quiz analysis result:', result);
     return result;
+  }
+
+  generateSearchKeywords(primaryStyle, profile, gender) {
+    const cleanGender = gender === 'unspecified' ? 'unisex' : gender;
+    const styleTerms = {
+      minimalist: "minimalist clean structured",
+      vintage: "vintage retro 90s heritage",
+      streetwear: "street urban oversized hypebeast",
+      preppy: "preppy classic old money polished",
+      boho: "bohemian artistic flowing natural",
+      gothic: "gothic dark alternative edgy",
+      cyberpunk: "cyberpunk futuristic techwear neon",
+      maximalist: "maximalist bold vibrant colorful"
+    };
+    
+    const baseStyle = styleTerms[primaryStyle] || primaryStyle;
+    
+    // Create a diversity seed based on unique combinations of their specific traits
+    const uniqueTraits = profile.traits || [];
+    // Shuffle traits using timestamp so retakes yield different permutations of their *actual* traits
+    const shuffledTraits = [...uniqueTraits].sort(() => 0.5 - Math.random());
+    const diversitySeed = shuffledTraits.slice(0, 2).join(' '); // Take top 2 randomized traits
+    
+    // Add essential fashion product types based on the profile
+    const clothingTypes = ["clothing", "outfit", "apparel", "wear"];
+    const typeModifier = clothingTypes[Date.now() % clothingTypes.length];
+    
+    return `${cleanGender} ${baseStyle} ${diversitySeed} ${typeModifier}`.toLowerCase().trim();
   }
 
   getPreferenceWeight(preference) {
@@ -215,7 +245,7 @@ export class QuizAnalyzer {
     console.log('Determining primary style from scores:', styleScores);
     
     // Find the style with highest positive score
-    const positiveStyles = Object.keys(styleScores)
+    const positiveStyles = Object.keys(styleScores)  
       .filter(style => styleScores[style] > 0)
       .sort((a, b) => styleScores[b] - styleScores[a]);
 

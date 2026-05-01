@@ -714,7 +714,7 @@ def get_sample_quiz_recommendations():
     ]
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5002))
     logger.info(f"Starting StyleGenie Chatbot API on port {port}")
     
     if ENHANCED_AI_AVAILABLE:

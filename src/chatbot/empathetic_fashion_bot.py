@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class EmpatheticFashionBot:
     """Intelligent fashion chatbot with emotional understanding and therapeutic responses"""
     
-    def __init__(self, products_file: str = None):
-        self.products = []
-        self.chat_histories = {}
+    def __init__(self, products_file: Optional[str] = None):
+        self.products: List[Dict[str, Any]] = []
+        self.chat_histories: Dict[str, Any] = {}
         self.emotion_patterns = self._load_emotion_patterns()
         self.therapeutic_responses = self._load_therapeutic_responses()
         self.load_products(products_file)
@@ -170,11 +170,15 @@ class EmpatheticFashionBot:
                     break
         
         # Analyze context clues
+        search_keywords = ['show', 'find', 'looking for', 'need', 'give me', 'suggest', 'get me', 'search', 'buy']
+        clothing_keywords = ['top', 'dress', 'outfit', 'clothes', 'wearing', 'shirt', 'jeans', 'pant', 'shoe', 'accessory', 'jewelry', 'skirt', 'jacket', 'coat', 'hoodie']
+        
         context = {
-            'seeking_help': any(phrase in message_lower for phrase in ['help me', 'what should', 'guide me', 'suggest']),
+            'seeking_help': any(phrase in message_lower for phrase in ['help me', 'what should', 'guide me', 'suggest', 'advice']),
             'expressing_problem': any(phrase in message_lower for phrase in ['problem', 'issue', 'trouble', 'wrong']),
-            'about_clothing': any(phrase in message_lower for phrase in ['top', 'dress', 'outfit', 'clothes', 'wearing']),
-            'emotional_distress': any(phrase in message_lower for phrase in ['feel', 'feeling', 'uncomfortable', 'bad'])
+            'about_clothing': any(phrase in message_lower for phrase in clothing_keywords),
+            'emotional_distress': any(phrase in message_lower for phrase in ['feel', 'feeling', 'uncomfortable', 'bad']),
+            'is_search_intent': any(phrase in message_lower for phrase in search_keywords) or any(phrase in message_lower for phrase in clothing_keywords)
         }
         
         # Determine primary emotion
@@ -189,14 +193,29 @@ class EmpatheticFashionBot:
             'all_emotions': detected_emotions,
             'context': context,
             'needs_support': primary_emotion in ['insecurity', 'anxiety', 'discomfort', 'frustration'],
-            'seeking_guidance': context['seeking_help'] or context['expressing_problem']
+            'seeking_guidance': context['seeking_help'] or context['expressing_problem'] or context['is_search_intent']
         }
 
     def generate_empathetic_response(self, message: str, emotion_data: Dict) -> Dict[str, Any]:
         """Generate therapeutic, empathetic response"""
         primary_emotion = emotion_data['primary_emotion']
+        message_lower = message.lower()
+        
+        # Add products if it looks like a search
+        products = []
+        if emotion_data['seeking_guidance']:
+            products = self.search_products(message, emotion_data)
         
         if primary_emotion == 'neutral':
+            if products:
+                response_text = f"I've found some wonderful pieces that match your style! Take a look at these suggestions: ✨"
+                return {
+                    'text': response_text,
+                    'suggestions': ["Show me more like this", "Do you have this in other colors?", "What should I wear with these?"],
+                    'emotion_detected': emotion_data,
+                    'response_type': 'product_search',
+                    'products': products
+                }
             return self._generate_general_response(message)
         
         # Get therapeutic responses for the emotion
@@ -210,8 +229,11 @@ class EmpatheticFashionBot:
         # Create comprehensive response
         response_text = f"{validation}\n\n{guidance}"
         
+        if products:
+            response_text += f"\n\nTo help brighten your day, I've curated a few items that I think you'll love! Style can be a great form of self-care. 💕"
+        
         # Add specific advice based on the message content
-        if 'top' in message.lower() and 'comfortable' in message.lower():
+        if 'top' in message_lower and 'comfortable' in message_lower:
             response_text += "\n\n💡 **For your top comfort:**\n"
             response_text += "• Check if it's the right size - too tight or loose can feel awkward\n"
             response_text += "• Consider the fabric - some materials can feel scratchy or clingy\n"
@@ -223,7 +245,7 @@ class EmpatheticFashionBot:
             'suggestions': suggestions,
             'emotion_detected': emotion_data,
             'response_type': 'therapeutic',
-            'products': []
+            'products': products
         }
 
     def _generate_general_response(self, message: str) -> Dict[str, Any]:
@@ -249,46 +271,273 @@ class EmpatheticFashionBot:
             'products': []
         }
 
-    def search_products(self, query: str, emotion_context: Dict = None) -> List[Dict]:
-        """Search products with emotional context consideration"""
+    def search_products(self, query: str, emotion_context: Optional[Dict] = None) -> List[Dict]:
+        """Real keyword-based product search scanning the entire catalog"""
         if not self.products:
             return []
         
-        # Simple product matching (can be enhanced with actual product data)
-        matching_products = []
         query_lower = query.lower()
         
-        # Mock products for demonstration
-        comfort_products = [
-            {
-                'id': 'comfort_top_1',
-                'title': 'Ultra-Soft Cotton Comfort Top',
-                'description': 'Designed for all-day comfort with breathable fabric and relaxed fit',
-                'price': '$29.99',
-                'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop',
-                'comfort_rating': 5,
-                'confidence_boost': 4
-            },
-            {
-                'id': 'comfort_top_2', 
-                'title': 'Confidence-Boosting Fitted Tee',
-                'description': 'Flattering cut that enhances your natural silhouette',
-                'price': '$34.99',
-                'image': 'https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?w=300&h=400&fit=crop',
-                'comfort_rating': 4,
-                'confidence_boost': 5
-            }
-        ]
+        # Remove common "noise" words from search
+        noise_words = ['show', 'me', 'some', 'find', 'looking', 'for', 'need', 'a', 'an', 'the', 'can', 'you', 'give', 'stylebot', 'bot']
+        keywords = [word for word in query_lower.split() if word not in noise_words and len(word) > 2]
         
-        if 'top' in query_lower and emotion_context and emotion_context.get('needs_support'):
-            return comfort_products
-        
-        return []
+        if not keywords:
+            # If no specific keywords, use a broad search for clothing types
+            clothing_types = ['top', 'dress', 'jeans', 'shirt', 'shoe', 'skirt', 'jacket']
+            keywords = [word for word in query_lower.split() if word in clothing_types]
+            
+        if not keywords:
+            return []
 
-    def load_products(self, products_file: str = None):
+        scored_products = []
+        for p in self.products:
+            score = 0
+            name = p.get('name', '').lower()
+            desc = p.get('description', '').lower()
+            cat = p.get('category', '').lower()
+            styles = [s.lower() for s in p.get('style', [])]
+            
+            # 1. Keyword matching with prioritization
+            for kw in keywords:
+                # Exact name match (highest priority)
+                if kw == name: score += 50
+                # Keyword in name
+                if kw in name: score += 10
+                # Keyword in category
+                if kw in cat: score += 8
+                # Keyword in style tags
+                if any(kw in s for s in styles): score += 5
+                # Keyword in description
+                if kw in desc: score += 2
+            
+            if score > 0:
+                # Format for frontend expectatons
+                scored_products.append({
+                    'id': p.get('id', p.get('product_id')),
+                    'title': p.get('name'),
+                    'price': f"${p.get('price', '85')}",
+                    'description': p.get('description'),
+                    'category': p.get('category'),
+                    'image': p.get('image_url', ''),
+                    'score': score
+                })
+        
+        # Sort by score and take top 6
+        scored_products.sort(key=lambda x: x['score'], reverse=True)
+        return scored_products[:6]
+
+    def get_quiz_recommendations(self, quiz_results: Dict) -> List[Dict]:
+        """Generate accurate tag-based recommendations based on quiz results"""
+        primary_aesthetic = quiz_results.get('primaryAesthetic', 'minimalist').lower()
+        secondary_aesthetics = quiz_results.get('secondaryAesthetics', [])
+        if isinstance(secondary_aesthetics, dict):
+            secondary_aesthetics = list(secondary_aesthetics.keys())
+            
+        user_gender = quiz_results.get('gender', 'unisex').lower()
+        # Normalize gender strings - expanded list for robustness
+        female_terms = ['women', 'woman', 'female', 'lady', 'girl', 'girls', 'ladies', 'femme']
+        male_terms = ['men', 'man', 'male', 'gentleman', 'boy', 'boys', 'gentlemen', 'masculine']
+        
+        if any(term == user_gender or re.search(rf'\b{term}\b', user_gender) for term in male_terms):
+            target_gender = 'male'
+        elif any(term == user_gender or re.search(rf'\b{term}\b', user_gender) for term in female_terms):
+            target_gender = 'female'
+        else:
+            target_gender = 'unisex'
+            
+        logger.info(f"Targeting gender: {target_gender} for user preference: {user_gender}")
+            
+        all_scored_products = []
+        
+        for p in self.products:
+            score = 0.0
+            
+            # 1. Strict Gender check
+            prod_genders = p.get('gender', ['unisex'])
+            # Normalize product genders as well
+            prod_genders = [g.lower() for g in prod_genders]
+            
+            if target_gender == 'female':
+                # ABSOLUTE FILTER: Only 'female' or 'unisex' items allowed
+                if 'male' in prod_genders and 'female' not in prod_genders:
+                    continue
+                if 'female' not in prod_genders and 'unisex' not in prod_genders:
+                    continue
+                
+                # Name-based safety check
+                prod_name = p.get('name', '').lower()
+                if any(m in prod_name for m in [' men', 'male', ' boy', 'gentlemen']) and 'women' not in prod_name:
+                    continue
+                    
+            elif target_gender == 'male':
+                # ABSOLUTE FILTER: Only 'male' or 'unisex' items allowed
+                if 'female' in prod_genders and 'male' not in prod_genders:
+                    continue
+                if 'male' not in prod_genders and 'unisex' not in prod_genders:
+                    continue
+                    
+                # Name-based safety check
+                prod_name = p.get('name', '').lower()
+                if any(f in prod_name for f in ['women', 'female', 'girl', 'lady', 'ladies']) and ' men' not in prod_name:
+                    continue
+            
+            # 2. KIDS CLOTHING FILTER - completely ignore for everyone
+            prod_name = p.get('name', '').lower()
+            if any(k in prod_name for k in ['kids', 'boy', 'girl', 'frock']):
+                # Double check to ensure we don't skip adult items with these words accidentally
+                # But to be safe as per user request: ignore
+                continue
+            
+            # Additional robustness for 'unisex' target
+            if target_gender == 'unisex' or target_gender not in ['male', 'female']:
+                # If product is strictly male or strictly female, it's not a great unisex fit
+                if 'male' in prod_genders and 'female' not in prod_genders:
+                     score -= 2.0
+                if 'female' in prod_genders and 'male' not in prod_genders:
+                     score -= 2.0
+                
+            # 2. Relaxed Tag matching (Style)
+            prod_styles = p.get('style', [])
+            
+            if any(primary_aesthetic in s for s in prod_styles) or any(s in primary_aesthetic for s in prod_styles):
+                score += 5.0
+            
+            for sa in secondary_aesthetics:
+                if isinstance(sa, str) and (any(sa.lower() in s for s in prod_styles) or any(s in sa.lower() for s in prod_styles)):
+                    score += 2.0
+                    
+            # 3. Add base score and a small random factor to prevent repetition
+            score = float(score) + 1.0 + (random.random() * 0.5)
+                    
+            if score > 0:
+                img_url = p.get('image_url', '')
+                all_scored_products.append({
+                    'id': p.get('id', p.get('product_id')), # robust id mapping
+                    'title': p.get('name'),
+                    'price': f"${p.get('price', 85)}",
+                    'description': p.get('description'),
+                    'aesthetic': primary_aesthetic,
+                    'category': p.get('category'),
+                    'score': score,
+                    'image': img_url
+                })
+
+        # Sort by score descending
+        all_scored_products.sort(key=lambda x: x['score'], reverse=True)
+        
+        # 3. Select for Variety
+        diverse_products = []
+        broad_category_counts = {}
+        category_map = {
+            'vest top': 'tops', 'shirt': 'tops', 't-shirt': 'tops', 'blouse': 'tops',
+            'leggings': 'bottoms', 'pants': 'bottoms', 'shorts': 'bottoms'
+        }
+        
+        for p in all_scored_products:
+            raw_cat = str(p.get('category', 'tops')).lower()
+            broad_cat = category_map.get(raw_cat, raw_cat)
+            
+            # Variety filter: If we have many items, be strict. If few, be relaxed.
+            limit = 2 if len(diverse_products) < 4 else 3
+            if broad_category_counts.get(broad_cat, 0) < limit:
+                current_score = p.get('score', 0)
+                p['score'] = min(0.99, 0.82 + (float(str(current_score)) * 0.01))
+                diverse_products.append(p)
+                broad_category_counts[broad_cat] = broad_category_counts.get(broad_cat, 0) + 1
+            
+            if len(diverse_products) >= 12:
+                break
+                
+        # Fallback to straight scoring if diversity filters out too much
+        # Fallback to straight scoring if diversity filters out too much
+        if len(diverse_products) < 4 and all_scored_products:
+            diverse_products = []
+            for i, p in enumerate(all_scored_products):
+                if i >= 12: break
+                diverse_products.append(p)
+            for p in diverse_products:
+                current_score = p.get('score', 0)
+                p['score'] = min(0.99, 0.82 + (float(str(current_score)) * 0.01))
+
+        if not diverse_products:
+            logger.warning(f"No matching products found for {primary_aesthetic} and gender {target_gender}, using generic gender-filtered items")
+            # CRITICAL FIX: Even in fallback, filter by gender!
+            gender_filtered_fallback = []
+            for p in self.products:
+                pg = [g.lower() for g in p.get('gender', ['unisex'])]
+                if target_gender == 'female':
+                    if 'female' in pg or 'unisex' in pg:
+                        # Name check in fallback too
+                        pn = p.get('name', '').lower()
+                        if not ('male' in pn and 'female' not in pn):
+                            if not any(k in pn for k in ['kids', 'boy', 'girl', 'frock']):
+                                gender_filtered_fallback.append(p)
+                elif target_gender == 'male':
+                    if 'male' in pg or 'unisex' in pg:
+                        pn = p.get('name', '').lower()
+                        if not ('female' in pn and 'male' not in pn):
+                            if not any(k in pn for k in ['kids', 'boy', 'girl', 'frock']):
+                                gender_filtered_fallback.append(p)
+                else:
+                    # Unisex fallback: prioritize only items NOT strictly male or female
+                    pn = p.get('name', '').lower()
+                    if not any(k in pn for k in ['kids', 'boy', 'girl', 'frock']):
+                        if 'male' not in pg or 'female' in pg: # items that are unisex or both
+                            gender_filtered_fallback.append(p)
+            
+            diverse_products = gender_filtered_fallback[:12] # type: ignore
+            
+            # Ensure the generic catalog items are formatted properly for the frontend
+            formatted_fallbacks = []
+            for item in diverse_products:
+                formatted_fallbacks.append({
+                    'id': item.get('id', item.get('product_id')),
+                    'title': item.get('name'),
+                    'price': f"${item.get('price', 85)}",
+                    'description': item.get('description'),
+                    'aesthetic': primary_aesthetic,
+                    'category': item.get('category'),
+                    'score': 0.85,
+                    'image': item.get('image_url', '')
+                })
+            return formatted_fallbacks
+
+        return diverse_products[:12] # type: ignore
+
+    def _get_fallback_products(self, aesthetic: str) -> List[Dict]:
+        """High quality fallback products when search returns too few results"""
+        templates = {
+            'minimalist': [
+                {'title': 'Essential White Cotton Tee', 'price': '$42', 'category': 'tops'},
+                {'title': 'Sleek Minimalist Watch', 'price': '$198', 'category': 'accessories'},
+                {'title': 'Minimalist Silk Blouse', 'price': '$78', 'category': 'tops'}
+            ],
+            'streetwear': [
+                {'title': 'Urban Oversized Hoodie', 'price': '$72', 'category': 'tops'},
+                {'title': 'High-Top Street Sneakers', 'price': '$95', 'category': 'shoes'}
+            ]
+        }
+        
+        items = templates.get(aesthetic, templates['minimalist'])
+        fallbacks = []
+        for i, item in enumerate(items):
+            fallbacks.append({
+                'id': f'fb_{aesthetic}_{i}',
+                'title': item['title'],
+                'price': item['price'],
+                'description': f"A signature {aesthetic} piece for your unique style.",
+                'aesthetic': aesthetic,
+                'category': item['category'],
+                'score': 0.9 - (i * 0.05),
+                'image': ''
+            })
+        return fallbacks
+
+    def load_products(self, products_file: Optional[str] = None):
         """Load products from JSON file"""
         if not products_file:
-            products_file = Path(__file__).parent.parent.parent / "data" / "processed" / "smart_products.json"
+            products_file = str(Path(__file__).parent / "curated_products.json")
         
         try:
             if os.path.exists(products_file):
@@ -299,7 +548,7 @@ class EmpatheticFashionBot:
             logger.error(f"Failed to load products: {e}")
             self.products = []
 
-    def process_message(self, user_id: str, message: str, chat_id: str = None) -> Dict[str, Any]:
+    def process_message(self, user_id: str, message: str, chat_id: Optional[str] = None) -> Dict[str, Any]:
         """Main message processing with emotional intelligence"""
         try:
             # Detect emotion and context
@@ -338,7 +587,7 @@ class EmpatheticFashionBot:
                 }
             }
 
-    def _save_to_history(self, user_id: str, message: str, response: Dict, chat_id: str = None):
+    def _save_to_history(self, user_id: str, message: str, response: Dict, chat_id: Optional[str] = None):
         """Save conversation to history"""
         if user_id not in self.chat_histories:
             self.chat_histories[user_id] = []
@@ -352,3 +601,4 @@ class EmpatheticFashionBot:
 
 # Global instance
 empathetic_bot = EmpatheticFashionBot()
+# Force flask reload for JSON update pt 4

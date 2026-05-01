@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, ShoppingBag, ExternalLink, Clock, Users, Star } from 'lucide-react';
+import { Heart, ShoppingBag, ExternalLink, Clock, Users, Star, Sparkles } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useUserContext } from '../../context/UserContext';
 import { formatPrice, calculateDiscount } from '../../utils/helpers';
@@ -8,7 +8,9 @@ const RecommendationCard = ({ recommendation }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const { updateCloutScore } = useProfile();
-  const { addToCart, addToFavorites, removeFromFavorites, isFavorite } = useUserContext();
+  const { 
+    addToCart, addToFavorites, removeFromFavorites, isFavorite
+  } = useUserContext();
 
   const handleLike = () => {
     const isCurrentlyFavorited = isFavorite(recommendation.id);
@@ -158,7 +160,8 @@ const RecommendationCard = ({ recommendation }) => {
           <ShoppingBag className="w-5 h-5" />
           <span>{isAddedToCart ? 'Added!' : 'Add to Cart'}</span>
         </button>
-        
+
+
         <button 
           onClick={handleLike}
           className="px-3 py-3 glass-effect hover:bg-brand-dark rounded-xl transition-all duration-300 border-2 border-purple-500/30 hover:border-purple-500/50"
